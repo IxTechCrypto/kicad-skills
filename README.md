@@ -95,6 +95,7 @@ Once installed, your AI agent can leverage these skills autonomously:
 This repository builds upon and credits the foundational work of several outstanding open-source projects and industry guides. See [**ATTRIBUTION.md**](ATTRIBUTION.md) for full citations.
 
 * **[PCB Runner](https://www.pcbrunner.com/a-complete-guide-to-pcb-routing-design-rules-and-best-practices-for-success/#Ground_and_Power_Planes):** Formed the foundational signal integrity and PCB routing engineering rules codified in `pcb-routing-best-practices`.
+* **[Altium Academy / Phil Salmony (Phil's Lab)](https://youtu.be/D0X76Kbf8fQ):** Inspired the reconciled $3H$ dielectric height crosstalk rule, via antipad clearance void keepouts, high-Z analog line sizing, and low-inductance decoupling geometry.
 * **[mixelpixx/KiCAD-MCP-Server](https://github.com/mixelpixx/KiCAD-MCP-Server):** Pioneer in LLM-to-KiCad MCP interaction and creator of the local SQLite FTS5 JLCPCB database indexing architecture.
 * **[lamaalrajih/kicad-mcp](https://github.com/lamaalrajih/kicad-mcp)** & **[Seeed-Studio/kicad-mcp-server](https://github.com/Seeed-Studio/kicad-mcp-server):** Pioneering Model Context Protocol servers for KiCad EDA automation.
 * **[aklofas/kicad-happy](https://github.com/aklofas/kicad-happy):** Andrew Klofas's deep Python schematic and EMC pre-compliance audit tools that inspired our quality gate workflows.
