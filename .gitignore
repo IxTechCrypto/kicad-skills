@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# KiCad temporary & backup files
+*.bak
+*.kicad_prl
+*.kicad_pcb-bak
+*.kicad_sch-bak
+*-save.kicad_pcb
+*-save.kicad_sch
+_autosave-*
+*.lck
+
+# Output renders & reports
+*.png
+*.pdf
+*.svg
+erc_report.json
+drc_report.json
+
+# OS specific
+.DS_Store
+Thumbs.db
+desktop.ini
