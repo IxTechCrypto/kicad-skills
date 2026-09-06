@@ -6,7 +6,9 @@ description: PCB routing design rules, trace geometry, high-speed signal integri
 # PCB Routing & Signal Integrity Best Practices
 
 ## Overview
-A comprehensive engineering guide and design-rule standard for routing printed circuit boards. Synthesized from IPC standards (IPC-2152, IPC-2221), electromagnetic physics (return path loop inductance, impedance control), and production DFM manufacturing constraints (JLCPCB, PCBWay).
+A comprehensive engineering guide and design-rule standard for routing printed circuit boards. Synthesized from IPC standards (IPC-2152, IPC-2221), electromagnetic physics (return path loop inductance, impedance control), production DFM manufacturing constraints (JLCPCB, PCBWay), and [PCB Runner's Complete Guide to PCB Routing Design Rules](https://www.pcbrunner.com/a-complete-guide-to-pcb-routing-design-rules-and-best-practices-for-success/#Ground_and_Power_Planes).
+
+> **Attribution Notice:** Core return-path physics, 45° chamfer acid trap prevention, 3W crosstalk suppression, and via-in-pad wicking guidelines adapted from [PCB Runner](https://www.pcbrunner.com/a-complete-guide-to-pcb-routing-design-rules-and-best-practices-for-success/). Full credits in [ATTRIBUTION.md](../../ATTRIBUTION.md).
 
 ---
 

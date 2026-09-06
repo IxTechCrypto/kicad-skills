@@ -7,6 +7,8 @@ description: Modern KiCad 10 hardware design, schematic engineering, PCB layout,
 
 This skill standardizes modern KiCad 10 electronic design automation (EDA) for AI coding agents and engineers, bridging deterministic CLI rule checks, Python `pcbnew` geometric operations, deep circuit analysis, and closed-loop visual validation.
 
+> **Attribution Notice:** Circuit diagnostic methodology and EMC pre-compliance concepts adapted from Andrew Klofas's [kicad-happy](https://github.com/aklofas/kicad-happy). EDA engine powered by [KiCad EDA](https://kicad.org/). Full credits in [ATTRIBUTION.md](../../ATTRIBUTION.md).
+
 ---
 
 ## 1. System Toolchain & Binaries
