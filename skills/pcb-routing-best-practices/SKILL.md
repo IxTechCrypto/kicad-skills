@@ -37,9 +37,15 @@ This skill standardizes spatial floorplanning, component placement, high-speed r
 - **Connector Outward Orientation (Non-Negotiable):**
   - All user-facing ports (USB-C, RJ45, MicroSD slots, Barrel Jacks, FPC ribbon latches) MUST face outward towards the board perimeter with their insertion opening pointing off-board.
   - Never rotate a user connector $180^\circ$ into the board interior.
+- **FPC / Ribbon Actuator Throat Orientation & Servicing Keepout:**
+  - Verify that the FPC flip latch / insertion opening faces the outer PCB edge, allowing flat flex ribbons to insert straight from off-board without $180^\circ$ hairpin loops.
+  - Maintain $\ge 3.0\,\text{mm}$ clear perimeter around FPC latches to allow finger and tweezer clearance during actuator opening/closing.
 - **Cross-Layer Through-Hole Clash Avoidance:**
   - Through-hole connector pins (e.g. RJ45 Magjack pins) protruding through to `B.Cu` create sharp mechanical obstacles.
   - Opposite-layer SMD sockets (e.g. MicroSD push-pull slot) must be located in clear zones (e.g. underneath SMD modules like ESP32) where no through-hole pins can block card insertion or finger grip.
+- **Tactile Button & Switch Ergonomic Envelope:**
+  - Pushbuttons (`RESET`, `BOOT`, user switches) require a minimum **$6.0\,\text{mm} \times 6.0\,\text{mm}$ clear finger envelope** centered on the switch actuator.
+  - Never place switches in narrow crevices between tall RF shield cans and connector bodies.
 - **Mating Cable Envelopes:**
   - Maintain $\ge 12\,\text{mm}$ clear envelope in front of USB-C and RJ45 ports and $\ge 3.0\,\text{mm}$ lateral clearance between adjacent connectors.
 

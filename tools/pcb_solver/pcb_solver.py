@@ -210,8 +210,12 @@ add_silk("RJ45 10/100", 10.5, 2.5, size=0.75)
 add_silk("ESP32-WROOM-32E", 49.0, 27.8, size=0.75)
 add_silk("5V 3A USB-C", 25.0, 22.0, size=0.75)
 add_silk("1.9in LCD FPC", 31.0, 6.5, size=0.65)
-add_silk("RST", 38.0, 5.0, size=0.65)
-add_silk("BOOT", 45.0, 5.0, size=0.65)
+add_silk("RST", 27.8, 11.5, size=0.65)
+add_silk("BOOT", 27.8, 18.0, size=0.65)
+
+
+
+
 
 # Bottom Layer Silkscreen
 add_silk("MINER DISPLAY BRIDGE v1.0", 32.5, 2.5, size=0.85, layer=pcbnew.B_SilkS)

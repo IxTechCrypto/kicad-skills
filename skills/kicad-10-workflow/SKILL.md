@@ -200,13 +200,18 @@ Once the primary schematic and PCB layout are generated, the design MUST undergo
 1. **Connector Outward Orientation (CRITICAL):**
    - **Outward Facing Rule:** All user-mating interfaces (USB-C, RJ45, MicroSD slots, Barrel Jacks, Audio Jacks, FPC ribbon latches, Terminal Blocks) MUST face directly outward towards the PCB edge with the insertion axis pointing off-board.
    - **Zero Inward Receptacles:** A connector oriented $180^\circ$ inward into the board body is a critical usability defect and must be rejected immediately.
-2. **Plug & Cable Insertion Keepout Envelope:**
+2. **FPC / ZIF Ribbon Connector Insertion & Actuator Flap:**
+   - Verify the footprint orientation distinguishes between fixed solder pins and the hinged actuator flap. The **ribbon entry throat and flip latch MUST face the board edge** so flex cables insert straight off-board without $180^\circ$ hairpin loops.
+   - Maintain $\ge 3.0\,\text{mm}$ clear perimeter around the FPC latch to allow finger or tweezer access to open and lock the actuator during assembly and servicing.
+3. **Plug & Cable Insertion Keepout Envelope:**
    - Ensure a minimum $10\text{--}15\,\text{mm}$ clear 3D volume in front of every port opening for cable overmolds, mating plugs, and user fingers.
    - Adjacent connectors must have $\ge 3.0\,\text{mm}$ lateral clearance to prevent wide USB-C / Ethernet cable hoods from colliding when plugged in simultaneously.
-3. **Cross-Layer Through-Hole Clash Prevention:**
+4. **Cross-Layer Through-Hole Clash Prevention:**
    - Through-hole connector leads (e.g. RJ45 Magjack pins, PTH terminals) protruding through to the opposite copper layer (`B.Cu`) must **NEVER** block or obstruct the insertion path, socket mouth, or card body of opposite-side SMD sockets (e.g. MicroSD push-pull cards).
-4. **Physical Controls Ergonomics & Human Factors:**
-   - Tactile switches (RESET, BOOT), dip switches, and buttons must be accessible without reaching underneath cable plugs, hot power stages, or tall housings.
+5. **Physical Controls Ergonomics & Finger Clearance:**
+   - Tactile switches (`RESET`, `BOOT`), dip switches, and pushbuttons require a **minimum $6.0\,\text{mm} \times 6.0\,\text{mm}$ clear finger envelope** centered on the button cap.
+   - Switches must **NEVER** be placed in narrow crevices directly abutting tall shielding cans (e.g. ESP32 metal can), massive connector housings, or underneath flex cables.
    - Operational status LEDs (Power, Wi-Fi, Ethernet Link) must remain visible during active operation and not be masked by plugged-in cables or large daughterboards.
+
 
 
