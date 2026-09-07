@@ -80,3 +80,9 @@ This skill standardizes spatial floorplanning, component placement, high-speed r
 | **Via Drill / Diameter** | $0.30\,	ext{mm} / 0.60\,	ext{mm}$ | $0.20\,	ext{mm} / 0.45\,	ext{mm}$ |
 | **Silkscreen Min Height / Width** | $1.0\,	ext{mm} / 0.15\,	ext{mm}$ | $0.8\,	ext{mm} / 0.12\,	ext{mm}$ |
 | **Silkscreen to Pad Clearance** | $\ge 0.15\,	ext{mm}$ | $\ge 0.10\,	ext{mm}$ |
+| **Cross-Layer THT-to-SMT Clearance** | $\ge 1.50\,\text{mm}$ | $\ge 1.00\,\text{mm}$ |
+| **RF Antenna Keepout** | Strict 4-Layer Copper/Component Void | Strict 4-Layer Copper/Component Void |
+| **M3 Standoff Radial Keepout** | $r \ge 3.0\,\text{mm}$ ($\varnothing \ge 6.0\,\text{mm}$) | $r \ge 3.0\,\text{mm}$ ($\varnothing \ge 6.0\,\text{mm}$) |
+
+### Automated Verification Gate
+Always execute `verify_layout_physics.py` before final DRC/ERC signoff to detect cross-layer pad collisions and RF keepout breaches.

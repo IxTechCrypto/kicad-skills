@@ -140,6 +140,18 @@ kicad-cli pcb drc --format json --schematic-parity --refill-zones --output drc_r
   * `0` drill-to-copper errors
   * `0` schematic parity discrepancies
 
+### Automated Physical & Multi-Layer Clash Pre-Flight Check (CRITICAL)
+Standard KiCad 2D DRC has blind spots for cross-layer through-hole collisions (PTH pins colliding with opposite-layer SMT pads), abstract RF antenna keepouts, and layer-aware insertion vectors. Always run the automated physics validator:
+```bash
+python tools/pcb_solver/verify_layout_physics.py <board.kicad_pcb>
+```
+* Must pass with `0` violations:
+  * `0` Cross-Layer THT vs Opposite-Layer SMT collisions ($\text{clearance} \ge 1.5\,\text{mm}$)
+  * `0` RF Antenna Keepout breaches (4-layer void zone)
+  * `0` M3/M2.5 Mounting Hole keepout encroachments ($r \ge 3.0\,\text{mm}$)
+  * `0` Inward-facing connector vectors
+  * `0` Pushbutton mechanical strain stacks over fine-pitch ICs
+
 ---
 
 ## 5. Layout & Trace Routing Strategy
