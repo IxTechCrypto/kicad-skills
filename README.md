@@ -23,11 +23,12 @@ This repository provides **agentic skills** and **deterministic verification scr
 
 | Skill | Description | Key Focus Areas |
 | :--- | :--- | :--- |
-| [`kicad-10-workflow`](skills/kicad-10-workflow/SKILL.md) | Standardizes KiCad 10 automation and design workflows. | S-expression headers, visual feedback loop (3D rendering), deterministic ERC/DRC quality gates, power stage layout topology. |
-| [`pcb-routing-best-practices`](skills/pcb-routing-best-practices/SKILL.md) | Core electrical and signal integrity routing rules. | Return path physics, strict 45° chamfers, 3W crosstalk suppression, IPC-2152 trace sizing, thermal vias, JLCPCB DFM rules. |
+| [`kicad-10-workflow`](skills/kicad-10-workflow/SKILL.md) | Standardizes KiCad 10 automation, synthesis, and 3-stage independent multi-persona reviews. | S-expression headers, visual feedback loop (3D rendering), deterministic ERC/DRC quality gates, 3-Stage Multi-Persona Review Protocol (Master EE + PCB/DFM Expert + Customer Usability Reviewer). |
+| [`pcb-routing-best-practices`](skills/pcb-routing-best-practices/SKILL.md) | Core electrical, signal integrity, and physical ergonomics rules. | Return path physics, strict 45° chamfers, 3W crosstalk suppression, IPC-2152 trace sizing, thermal vias, JLCPCB DFM rules, connector outward orientation & cable mating envelopes. |
 
-### 2. Automation Tooling (`scripts/`)
+### 2. Constraint Placement Solver & Tooling (`tools/` & `scripts/`)
 
+* **`tools/pcb_solver/pcb_solver.py`**: Reusable discrete PCB constraint optimizer powered by Google OR-Tools CP-SAT and KiCad 10 Python IPC bridge. Enforces `NoOverlap2D` bounding boxes, sacred mechanical keepouts ($\ge 6.0\,\text{mm}$ for M3 screws), perimeter edge anchors, and top/bottom layer segregation.
 * **`scripts/render_3d.py`**: Automated high-resolution orthographic top, bottom, and perspective isometric 3D board raytracer.
 * **`scripts/run_quality_gates.py`**: Zero-tolerance ERC and DRC runner that refills copper zones, checks schematic-to-layout parity, and parses JSON reports.
 * **`scripts/search_jlcpcb.py`**: Fast local CLI search engine for querying 630,000+ components in the JLCPCB/LCSC catalog (filters by package, in-stock quantity, and "Basic" parts).

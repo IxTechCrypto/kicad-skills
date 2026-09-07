@@ -154,3 +154,59 @@ kicad-cli pcb drc --format json --schematic-parity --refill-zones --output drc_r
    * **Thermal Vias**: Place a dense $3\times 3$ or $4\times 4$ thermal via grid under exposed power pads ($0.3\text{mm}$ drill, $0.6\text{mm}$ pad, tented/filled).
    * **Kelvin Connections**: Always route voltage feedback ($V_{\text{FB}}$) as a dedicated, shielded trace directly from the point-of-load bypass capacitor, isolated from the high $di/dt$ switching node ($SW$).
    * **Solid Ground Reference**: Ensure copper pours on adjacent inner layers remain unbroken directly underneath switching loops and differential pairs.
+
+---
+
+## 6. Multi-Role Independent Engineering Review Protocol
+
+Once the primary schematic and PCB layout are generated, the design MUST undergo a mandatory three-stage independent review before being marked as complete or released for fabrication:
+
+### Stage 1: Independent Master Electrical Engineer Review
+1. **Power Supply & Switching Converter Topology:**
+   - Verify input capacitor ($C_{\text{IN}}$) and output capacitor ($C_{\text{OUT}}$) placement directly adjacent to switching IC.
+   - Confirm switching loop area ($V_{\text{IN}} \rightarrow \text{SW} \rightarrow L \rightarrow C_{\text{OUT}} \rightarrow \text{GND}$) is strictly minimized.
+   - Verify feedback divider ($V_{\text{FB}}$) takes a clean Kelvin connection from $C_{\text{OUT}}$, shielded from inductor $SW$ flux.
+2. **Decoupling & Power Integrity:**
+   - Confirm every IC power pin has a local $100\,\text{nF}$ bypass cap within $< 2.0\,\text{mm}$.
+   - Check ferrite bead / LC filters for sensitive analog/RF/PHY rails ($V_{\text{DDA33}}$).
+3. **High-Speed Signal & Clock Integrity:**
+   - Verify 50MHz RMII clock, crystal oscillators, and SPI high-speed buses run over unbroken ground reference planes.
+   - Verify termination resistors ($49.9\,\Omega \pm 1\%$ on Ethernet, series dampening on high-speed clocks).
+4. **Protection & Safety:**
+   - Confirm TVS diodes on exposed user connectors (USB VBUS/D+/D-, Ethernet pairs) and proper fuse/eFuse sizing.
+
+### Stage 2: Independent PCB Layout, Mechanical & DFM Expert Review
+1. **Mechanical Keepouts & Hardware Clearances (CRITICAL):**
+   - **Mounting Holes:** Screw heads, washers, and standoffs require a strict circular keepout:
+     - **M3 Holes:** $\ge 6.0\,\text{mm}$ diameter circular clearance centered on hole.
+     - **M2.5 Holes:** $\ge 5.0\,\text{mm}$ diameter circular clearance.
+     - **Zero Tolerance:** No SMD/THT components, copper tracks, or vias may enter the hardware keepout zone.
+2. **Courtyard Collisions & Physical Clearances:**
+   - 0 component body overlaps, 0 courtyard collisions in DRC.
+   - Ensure tall components (RJ45, electrolytic caps, inductors) do not obstruct ribbon cables or daughterboards.
+3. **Silkscreen Integrity & Collision Prevention:**
+   - Silkscreen text, component outlines, and reference designators must **NEVER** overlap solder pads, test points, or mounting hole annular rings.
+   - Minimum text height $\ge 0.80\,\text{mm}$, line thickness $\ge 0.15\,\text{mm}$.
+   - All text oriented consistently (readable from bottom or right).
+4. **Closed-Loop Visual Inspection Gate:**
+   - Generate and visually inspect high-resolution 3D renders (`render_top.png`, `render_bottom.png`, `render_iso.png`).
+   - Specifically zoom in and audit:
+     - All 4 corners & mounting holes.
+     - Board perimeter & connector overhangs.
+     - High-density IC fanouts and passive clusters.
+   - If any violation is observed in the 3D render, the design fails the review and must be adjusted before final sign-off.
+
+### Stage 3: Independent Customer Usability & Physical Ergonomics Reviewer
+1. **Connector Outward Orientation (CRITICAL):**
+   - **Outward Facing Rule:** All user-mating interfaces (USB-C, RJ45, MicroSD slots, Barrel Jacks, Audio Jacks, FPC ribbon latches, Terminal Blocks) MUST face directly outward towards the PCB edge with the insertion axis pointing off-board.
+   - **Zero Inward Receptacles:** A connector oriented $180^\circ$ inward into the board body is a critical usability defect and must be rejected immediately.
+2. **Plug & Cable Insertion Keepout Envelope:**
+   - Ensure a minimum $10\text{--}15\,\text{mm}$ clear 3D volume in front of every port opening for cable overmolds, mating plugs, and user fingers.
+   - Adjacent connectors must have $\ge 3.0\,\text{mm}$ lateral clearance to prevent wide USB-C / Ethernet cable hoods from colliding when plugged in simultaneously.
+3. **Cross-Layer Through-Hole Clash Prevention:**
+   - Through-hole connector leads (e.g. RJ45 Magjack pins, PTH terminals) protruding through to the opposite copper layer (`B.Cu`) must **NEVER** block or obstruct the insertion path, socket mouth, or card body of opposite-side SMD sockets (e.g. MicroSD push-pull cards).
+4. **Physical Controls Ergonomics & Human Factors:**
+   - Tactile switches (RESET, BOOT), dip switches, and buttons must be accessible without reaching underneath cable plugs, hot power stages, or tall housings.
+   - Operational status LEDs (Power, Wi-Fi, Ethernet Link) must remain visible during active operation and not be masked by plugged-in cables or large daughterboards.
+
+
