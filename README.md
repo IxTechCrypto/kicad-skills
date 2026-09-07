@@ -23,8 +23,11 @@ This repository provides **agentic skills** and **deterministic verification scr
 
 | Skill | Description | Key Focus Areas |
 | :--- | :--- | :--- |
-| [`kicad-10-workflow`](skills/kicad-10-workflow/SKILL.md) | Standardizes KiCad 10 automation, synthesis, and 3-stage independent multi-persona reviews. | S-expression headers, visual feedback loop (3D rendering), deterministic ERC/DRC quality gates, 3-Stage Multi-Persona Review Protocol (Master EE + PCB/DFM Expert + Customer Usability Reviewer). |
-| [`pcb-routing-best-practices`](skills/pcb-routing-best-practices/SKILL.md) | Core electrical, signal integrity, and physical ergonomics rules. | Return path physics, strict 45° chamfers, 3W crosstalk suppression, IPC-2152 trace sizing, thermal vias, JLCPCB DFM rules, connector outward orientation & cable mating envelopes. |
+| [`kicad-10-workflow`](skills/kicad-10-workflow/SKILL.md) | Standardizes KiCad 10 automation, synthesis, and 3-stage independent multi-persona reviews. | S-expression headers, visual feedback loop (3D rendering), deterministic ERC/DRC quality gates, 3-Stage Multi-Persona Review Protocol (Master EE + PCB/DFM Expert + Ultra-Aggressive Usability Reviewer). |
+| [`pcb-routing-best-practices`](skills/pcb-routing-best-practices/SKILL.md) | Core electrical, signal integrity, RF mixed-signal, and physical ergonomics rules. | Phil's Lab STRF 4-layer RF stackup, $50\Omega$ coplanar waveguides, via stitching fences, domain isolation, return path physics, IPC-2152 trace sizing, thermal vias, JLCPCB DFM rules, connector outward orientation & simultaneous cable overmold envelopes. |
+| [`grill-me`](skills/grill-me/SKILL.md) | Relentless, round-based design tree interview. | Stress-test plans, architecture, and hardware assumptions before implementation. Frontier-based rounds, fact-finding separation, and confirmation gates. |
+| [`grilling`](skills/grilling/SKILL.md) | Core design tree and frontier questioning engine. | Primitive for round-based technical interviews and architectural exploration. |
+| [`grill-with-docs`](skills/grill-with-docs/SKILL.md) | Codebase-aligned stateful grilling. | Synchronizes interview outcomes with `CONTEXT.md` and Architecture Decision Records (ADRs). |
 
 ### 2. Constraint Placement Solver & Tooling (`tools/` & `scripts/`)
 

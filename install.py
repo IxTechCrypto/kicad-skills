@@ -15,10 +15,11 @@ import sys
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
-SKILLS = [
-    "kicad-10-workflow",
-    "pcb-routing-best-practices"
-]
+def get_available_skills(base_dir):
+    skills_dir = os.path.join(base_dir, "skills")
+    if not os.path.exists(skills_dir):
+        return []
+    return [d for d in os.listdir(skills_dir) if os.path.isdir(os.path.join(skills_dir, d)) and not d.startswith(".")]
 
 
 def link_or_copy(src, dst):
@@ -53,11 +54,12 @@ def link_or_copy(src, dst):
 def install_skills(targets):
     base_dir = os.path.dirname(os.path.abspath(__file__))
     skills_dir = os.path.join(base_dir, "skills")
+    skills = get_available_skills(base_dir)
 
     for target in targets:
-        print(f"\n[*] Installing KiCad skills to: {target}")
+        print(f"\n[*] Installing skills to: {target}")
         os.makedirs(target, exist_ok=True)
-        for skill in SKILLS:
+        for skill in skills:
             src = os.path.join(skills_dir, skill)
             dst = os.path.join(target, skill)
             if not os.path.exists(src):

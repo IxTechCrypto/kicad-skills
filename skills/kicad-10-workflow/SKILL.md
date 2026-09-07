@@ -208,23 +208,22 @@ Once the primary schematic and PCB layout are generated, the design MUST undergo
      - High-density IC fanouts and passive clusters.
    - If any violation is observed in the 3D render, the design fails the review and must be adjusted before final sign-off.
 
-### Stage 3: Independent Customer Usability & Physical Ergonomics Reviewer
+### Stage 3: Ultra-Aggressive Usability, Mechanical & Peripherals Reviewer
 1. **Connector Outward Orientation & Bottom-Layer Mirroring Math (CRITICAL):**
-   - **Outward Facing Rule:** All user-mating interfaces (USB-C, RJ45, MicroSD slots, Barrel Jacks, Audio Jacks, FPC ribbon latches, Terminal Blocks) MUST face directly outward towards the PCB edge with the insertion axis pointing off-board.
-   - **Zero Inward Receptacles:** A connector oriented $180^\circ$ inward into the board body is a critical usability defect and must be rejected immediately.
-   - **Bottom Layer (`B.Cu`) Coordinate Flip Guard:** On `B.Cu`, KiCad's `fp.Flip()` mirrors the footprint across the X-axis (inverting the local Y vector). A rotation that points right on `F.Cu` ($+90^\circ$) will point **left/inward** on `B.Cu`. To point outward to the right edge on `B.Cu`, rotation must be **$270^\circ$ ($-90^\circ$)**. Always verify post-flip normal vectors rather than relying on 2D bounding boxes.
-2. **FPC / ZIF Ribbon Connector Insertion & Actuator Flap:**
-   - Verify the footprint orientation distinguishes between fixed solder pins and the hinged actuator flap. The **ribbon entry throat and flip latch MUST face the board edge** so flex cables insert straight off-board without $180^\circ$ hairpin loops.
-   - Maintain $\ge 3.0\,\text{mm}$ clear perimeter around the FPC latch to allow finger or tweezer access to open and lock the actuator during assembly and servicing.
-3. **Plug & Cable Insertion Keepout Envelope:**
-   - Ensure a minimum $10\text{--}15\,\text{mm}$ clear 3D volume in front of every port opening for cable overmolds, mating plugs, and user fingers.
-   - Adjacent connectors must have $\ge 3.0\,\text{mm}$ lateral clearance to prevent wide USB-C / Ethernet cable hoods from colliding when plugged in simultaneously.
-4. **Cross-Layer Through-Hole Clash Prevention:**
-   - Through-hole connector leads (e.g. RJ45 Magjack pins, PTH terminals) protruding through to the opposite copper layer (`B.Cu`) must **NEVER** block or obstruct the insertion path, socket mouth, or card body of opposite-side SMD sockets (e.g. MicroSD push-pull cards).
+   - **Outward Facing Rule:** All user-mating interfaces (USB-C, RJ45, MicroSD slots, Barrel Jacks, Audio Jacks, FPC ribbon latches, HDMI) MUST face directly outward towards the PCB edge with the insertion axis pointing off-board.
+   - **Bottom Layer (`B.Cu`) Coordinate Flip Guard:** On `B.Cu`, KiCad's `fp.Flip()` mirrors the footprint across the X-axis (inverting the local Y vector). A rotation that points right on `F.Cu` ($+90^\circ$) will point **left/inward** on `B.Cu`. To point outward to the right edge on `B.Cu`, rotation must be **$270^\circ$ ($-90^\circ$)**.
+2. **Simultaneous Cable Plug Overmold Interference:**
+   - Never evaluate ports in isolation with bare metal plug models. Simulate standard molded cable boots:
+     - **Mini / Full HDMI:** $18\,\text{mm} \times 9\,\text{mm}$
+     - **Micro-USB:** $11\,\text{mm} \times 7\,\text{mm}$
+     - **USB-C:** $13\,\text{mm} \times 7.5\,\text{mm}$
+   - Check side-by-side pitch: adjacent ports (e.g. dual USB ports) must have $\ge 12.5\,\text{mm}$ center pitch so two standard molded cables plug in simultaneously without colliding.
+3. **SD Card 3-Stage Mechanical Cycle & Extraction Dynamics:**
+   - 1) **Locked state:** Card overhangs board edge by $\approx 1.5\text{--}2.0\,\text{mm}$.
+   - 2) **Push-to-Eject stroke:** Card travels **inward an additional $1.5\text{--}2.0\,\text{mm}$** past the locked position before releasing. No internal components may obstruct this inward stroke.
+   - 3) **Ejected protrusion:** Card extends $3.5\text{--}4.5\,\text{mm}$ past PCB edge.
+   - Maintain an open **$\ge 12.0\,\text{mm}$ pinch corridor** for human fingernail leverage.
+4. **Expansion Header & HAT Strike-Zone:**
+   - When $2 \times 20$ $2.54\,\text{mm}$ GPIO headers are placed on Top (`F.Cu`), the entire $5.08\,\text{mm}$ plastic shroud and daughterboard seating zone must be 100% clear of colliding SMT components (e.g., MicroSD sockets must be partitioned to `B.Cu`).
 5. **Physical Controls Ergonomics & Finger Clearance:**
-   - Tactile switches (`RESET`, `BOOT`), dip switches, and pushbuttons require a **minimum $6.0\,\text{mm} \times 6.0\,\text{mm}$ clear finger envelope** centered on the button cap.
-   - Switches must **NEVER** be placed in narrow crevices directly abutting tall shielding cans (e.g. ESP32 metal can), massive connector housings, or underneath flex cables.
-   - Operational status LEDs (Power, Wi-Fi, Ethernet Link) must remain visible during active operation and not be masked by plugged-in cables or large daughterboards.
-
-
-
+   - Tactile switches (`RESET`, `BOOT`) require a **minimum $6.0\,\text{mm} \times 6.0\,\text{mm}$ clear finger envelope** centered on the button cap.
