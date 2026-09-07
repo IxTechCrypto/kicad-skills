@@ -219,9 +219,10 @@ add_silk("BOOT", 27.8, 18.0, size=0.65)
 
 # Bottom Layer Silkscreen
 add_silk("MINER DISPLAY BRIDGE v1.0", 32.5, 2.5, size=0.85, layer=pcbnew.B_SilkS)
-add_silk("MICROSD SLOT ->", 50.0, 26.5, size=0.75, layer=pcbnew.B_SilkS)
+add_silk("<- MICROSD SLOT", 51.0, 26.5, size=0.75, layer=pcbnew.B_SilkS)
 add_silk("3A BUCK", 31.0, 27.5, size=0.65, layer=pcbnew.B_SilkS)
 add_silk("CH340E UART", 31.0, 16.5, size=0.65, layer=pcbnew.B_SilkS)
+
 
 
 pcbnew.SaveBoard(r"{output_file}", board)

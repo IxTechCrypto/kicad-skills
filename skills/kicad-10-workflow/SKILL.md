@@ -197,9 +197,10 @@ Once the primary schematic and PCB layout are generated, the design MUST undergo
    - If any violation is observed in the 3D render, the design fails the review and must be adjusted before final sign-off.
 
 ### Stage 3: Independent Customer Usability & Physical Ergonomics Reviewer
-1. **Connector Outward Orientation (CRITICAL):**
+1. **Connector Outward Orientation & Bottom-Layer Mirroring Math (CRITICAL):**
    - **Outward Facing Rule:** All user-mating interfaces (USB-C, RJ45, MicroSD slots, Barrel Jacks, Audio Jacks, FPC ribbon latches, Terminal Blocks) MUST face directly outward towards the PCB edge with the insertion axis pointing off-board.
    - **Zero Inward Receptacles:** A connector oriented $180^\circ$ inward into the board body is a critical usability defect and must be rejected immediately.
+   - **Bottom Layer (`B.Cu`) Coordinate Flip Guard:** On `B.Cu`, KiCad's `fp.Flip()` mirrors the footprint across the X-axis (inverting the local Y vector). A rotation that points right on `F.Cu` ($+90^\circ$) will point **left/inward** on `B.Cu`. To point outward to the right edge on `B.Cu`, rotation must be **$270^\circ$ ($-90^\circ$)**. Always verify post-flip normal vectors rather than relying on 2D bounding boxes.
 2. **FPC / ZIF Ribbon Connector Insertion & Actuator Flap:**
    - Verify the footprint orientation distinguishes between fixed solder pins and the hinged actuator flap. The **ribbon entry throat and flip latch MUST face the board edge** so flex cables insert straight off-board without $180^\circ$ hairpin loops.
    - Maintain $\ge 3.0\,\text{mm}$ clear perimeter around the FPC latch to allow finger or tweezer access to open and lock the actuator during assembly and servicing.

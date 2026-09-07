@@ -37,6 +37,7 @@ This skill standardizes spatial floorplanning, component placement, high-speed r
 - **Connector Outward Orientation (Non-Negotiable):**
   - All user-facing ports (USB-C, RJ45, MicroSD slots, Barrel Jacks, FPC ribbon latches) MUST face outward towards the board perimeter with their insertion opening pointing off-board.
   - Never rotate a user connector $180^\circ$ into the board interior.
+  - **Bottom Layer (`B.Cu`) Coordinate Flip Guard:** On `B.Cu`, KiCad's `fp.Flip()` mirrors the footprint across the X-axis (inverting the local Y vector). A rotation that points right on `F.Cu` ($+90^\circ$) will point **left/inward** on `B.Cu`. To point outward to the right edge on `B.Cu`, rotation must be **$270^\circ$ ($-90^\circ$)**. Always verify post-flip normal vectors rather than relying on 2D bounding boxes.
 - **FPC / Ribbon Actuator Throat Orientation & Servicing Keepout:**
   - Verify that the FPC flip latch / insertion opening faces the outer PCB edge, allowing flat flex ribbons to insert straight from off-board without $180^\circ$ hairpin loops.
   - Maintain $\ge 3.0\,\text{mm}$ clear perimeter around FPC latches to allow finger and tweezer clearance during actuator opening/closing.
