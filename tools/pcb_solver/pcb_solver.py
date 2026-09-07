@@ -207,21 +207,18 @@ def add_silk(txt, x, y, size=0.8, layer=pcbnew.F_SilkS):
 
 # Top Layer Human Factors Silkscreen
 add_silk("RJ45 10/100", 10.5, 2.5, size=0.75)
-add_silk("ESP32-WROOM-32E", 49.0, 27.8, size=0.75)
+add_silk("ESP32-WROOM-32E", 56.0, 27.8, size=0.75)
 add_silk("5V 3A USB-C", 25.0, 22.0, size=0.75)
-add_silk("1.9in LCD FPC", 31.0, 6.5, size=0.65)
-add_silk("RST", 27.8, 11.5, size=0.65)
-add_silk("BOOT", 27.8, 18.0, size=0.65)
-
-
-
-
+add_silk("1.9in LCD FPC", 44.0, 6.5, size=0.65)
+add_silk("RST", 29.0, 8.8, size=0.65)
+add_silk("BOOT", 29.0, 21.2, size=0.65)
+add_silk("ANTENNA KEEP OUT", 66.5, 15.0, size=0.70)
 
 # Bottom Layer Silkscreen
-add_silk("MINER DISPLAY BRIDGE v1.0", 32.5, 2.5, size=0.85, layer=pcbnew.B_SilkS)
-add_silk("<- MICROSD SLOT", 51.0, 26.5, size=0.75, layer=pcbnew.B_SilkS)
-add_silk("3A BUCK", 31.0, 27.5, size=0.65, layer=pcbnew.B_SilkS)
-add_silk("CH340E UART", 31.0, 16.5, size=0.65, layer=pcbnew.B_SilkS)
+add_silk("MINER DISPLAY BRIDGE v1.0", 36.0, 2.5, size=0.85, layer=pcbnew.B_SilkS)
+add_silk("^ MICROSD SLOT", 37.0, 15.5, size=0.75, layer=pcbnew.B_SilkS)
+add_silk("3A BUCK", 47.0, 28.5, size=0.65, layer=pcbnew.B_SilkS)
+add_silk("CH340E UART", 22.0, 18.5, size=0.65, layer=pcbnew.B_SilkS)
 
 
 
