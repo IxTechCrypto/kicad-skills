@@ -227,3 +227,23 @@ Once the primary schematic and PCB layout are generated, the design MUST undergo
    - When $2 \times 20$ $2.54\,\text{mm}$ GPIO headers are placed on Top (`F.Cu`), the entire $5.08\,\text{mm}$ plastic shroud and daughterboard seating zone must be 100% clear of colliding SMT components (e.g., MicroSD sockets must be partitioned to `B.Cu`).
 5. **Physical Controls Ergonomics & Finger Clearance:**
    - Tactile switches (`RESET`, `BOOT`) require a **minimum $6.0\,\text{mm} \times 6.0\,\text{mm}$ clear finger envelope** centered on the button cap.
+
+---
+
+## 7. Reference Hardware Design Retrieval & BoardRepo Integration
+
+To avoid re-inventing standard circuits or guessing complex floorplans, leverage open-source golden reference designs via **BoardRepo** (`boardrepo` MCP server):
+
+### Capabilities & Usage Patterns
+1. **Circuit Subsystem Archetypes:**
+   - Query proven open-source implementations for:
+     - ESP32-S3 / RP2040 minimal host carrier topologies.
+     - Buck/Boost converter switch-node layouts ($V_{\text{SW}}$ loop minimization).
+     - USB 2.0 / 3.0 Type-C CC1/CC2 resistor networks and ESD protection.
+     - Ethernet PHY RMII length-matched routing and magnetics isolation.
+2. **Interactive 3D Web Inspection:**
+   - Use BoardRepo's browser-based WebGL viewer to inspect 3D assemblies, cross-layer component stackups, and schematic net hierarchies without needing local KiCad GUI instances.
+3. **MCP Tool Integration:**
+   - Configured in `~/.gemini/config/mcp_config.json` via remote SSE (`https://boardrepo.com/mcp`).
+   - Use MCP queries to inspect BOMs, netlists, and mechanical constraints directly within the agent workflow before synthesizing custom board geometries.
+
