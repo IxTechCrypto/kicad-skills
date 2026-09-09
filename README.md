@@ -23,15 +23,18 @@ This repository provides **agentic skills** and **deterministic verification scr
 
 | Skill | Description | Key Focus Areas |
 | :--- | :--- | :--- |
-| [`kicad-10-workflow`](skills/kicad-10-workflow/SKILL.md) | Standardizes KiCad 10 automation, synthesis, and 3-stage independent multi-persona reviews. | S-expression headers, visual feedback loop (3D rendering), deterministic ERC/DRC quality gates, 3-Stage Multi-Persona Review Protocol (Master EE + PCB/DFM Expert + Ultra-Aggressive Usability Reviewer). |
-| [`pcb-routing-best-practices`](skills/pcb-routing-best-practices/SKILL.md) | Core electrical, signal integrity, RF mixed-signal, and physical ergonomics rules. | Phil's Lab STRF 4-layer RF stackup, $50\Omega$ coplanar waveguides, via stitching fences, domain isolation, return path physics, IPC-2152 trace sizing, thermal vias, JLCPCB DFM rules, connector outward orientation & simultaneous cable overmold envelopes. |
+| [`kicad-10-workflow`](skills/kicad-10-workflow/SKILL.md) | Standardizes KiCad 10 automation, synthesis, BoardRepo reference retrieval, and 3-stage independent reviews. | S-expression headers, visual feedback loop (3D rendering), deterministic ERC/DRC quality gates, 3-Stage Multi-Persona Review Protocol (Master EE + PCB/DFM Expert + Ultra-Aggressive Usability Reviewer), BoardRepo MCP open-source reference retrieval, and 3-Tier Custom Footprint Pipeline. |
+| [`pcb-routing-best-practices`](skills/pcb-routing-best-practices/SKILL.md) | Core electrical, signal integrity, RF mixed-signal, algorithmic routing, and physical ergonomics rules. | Phil's Lab STRF 4-layer RF stackup, $50\Omega$ coplanar waveguides, via stitching fences, domain isolation, return path physics, IPC-2152 trace sizing, thermal vias, JLCPCB DFM rules, Routing Decision Ladder ($A^*$ Graph vs. Topological), connector outward orientation & simultaneous cable overmold envelopes. |
 | [`grill-me`](skills/grill-me/SKILL.md) | Relentless, round-based design tree interview. | Stress-test plans, architecture, and hardware assumptions before implementation. Frontier-based rounds, fact-finding separation, and confirmation gates. |
 | [`grilling`](skills/grilling/SKILL.md) | Core design tree and frontier questioning engine. | Primitive for round-based technical interviews and architectural exploration. |
 | [`grill-with-docs`](skills/grill-with-docs/SKILL.md) | Codebase-aligned stateful grilling. | Synchronizes interview outcomes with `CONTEXT.md` and Architecture Decision Records (ADRs). |
 
 ### 2. Constraint Placement Solver & Tooling (`tools/` & `scripts/`)
 
-* **`tools/pcb_solver/pcb_solver.py`**: Reusable discrete PCB constraint optimizer powered by Google OR-Tools CP-SAT and KiCad 10 Python IPC bridge. Enforces `NoOverlap2D` bounding boxes, sacred mechanical keepouts ($\ge 6.0\,\text{mm}$ for M3 screws), perimeter edge anchors, and top/bottom layer segregation.
+* **`tools/pcb_solver/verify_layout_physics.py`**: Automated multi-layer 3D collision and ergonomics pre-flight gate. Detects cross-layer THT pin penetrations into opposite SMT pads ($\ge 1.5\,\text{mm}$ rule), RF 4-layer void breaches, M3/M2.5 standoff keepout intrusions, inward-facing connectors, and button mechanical strain stacks.
+* **`tools/pcb_solver/astar_router.py`**: Graph-based 8-directional $A^*$ PCB trace router with 90° corner penalties, collinear segment simplification, and automated KiCad 10 `(segment ...)` S-expression generation.
+* **`tools/pcb_solver/generate_footprint.py`**: Parametric IPC-7351B footprint generator for custom SMD IC packages (QFN, DFN, SOIC, TSSOP, SOT) with automatic **thermal pad solder paste gridding** ($2\times 2$ / $3\times 3$ apertures, 60% coverage) to prevent IC floating and solder bridging.
+* **`tools/pcb_solver/pcb_solver.py`**: Discrete PCB constraint optimizer powered by Google OR-Tools CP-SAT and KiCad 10 Python IPC bridge. Enforces `NoOverlap2D` bounding boxes, sacred mechanical keepouts ($\ge 6.0\,\text{mm}$ for M3 screws), perimeter edge anchors, and top/bottom layer segregation.
 * **`scripts/render_3d.py`**: Automated high-resolution orthographic top, bottom, and perspective isometric 3D board raytracer.
 * **`scripts/run_quality_gates.py`**: Zero-tolerance ERC and DRC runner that refills copper zones, checks schematic-to-layout parity, and parses JSON reports.
 * **`scripts/search_jlcpcb.py`**: Fast local CLI search engine for querying 630,000+ components in the JLCPCB/LCSC catalog (filters by package, in-stock quantity, and "Basic" parts).
@@ -102,7 +105,8 @@ This repository builds upon and credits the foundational work of several outstan
 * **[Altium Academy / Phil Salmony (Phil's Lab)](https://youtu.be/D0X76Kbf8fQ):** Inspired the reconciled $3H$ dielectric height crosstalk rule, via antipad clearance void keepouts, high-Z analog line sizing, and low-inductance decoupling geometry.
 * **[mixelpixx/KiCAD-MCP-Server](https://github.com/mixelpixx/KiCAD-MCP-Server):** Pioneer in LLM-to-KiCad MCP interaction and creator of the local SQLite FTS5 JLCPCB database indexing architecture.
 * **[lamaalrajih/kicad-mcp](https://github.com/lamaalrajih/kicad-mcp)** & **[Seeed-Studio/kicad-mcp-server](https://github.com/Seeed-Studio/kicad-mcp-server):** Pioneering Model Context Protocol servers for KiCad EDA automation.
-* **[aklofas/kicad-happy](https://github.com/aklofas/kicad-happy):** Andrew Klofas's deep Python schematic and EMC pre-compliance audit tools that inspired our quality gate workflows.
+* **[BoardRepo](https://boardrepo.com/):** Web-based hardware repository and MCP platform for open-source reference design retrieval.
+* **[tscircuit/footprinter](https://github.com/tscircuit/footprinter):** Micro-builder DSL inspiring our parametric IPC-7351 footprint generation pipeline.
 * **[KiCad EDA](https://kicad.org/):** The world-class open-source EDA suite.
 
 ---
