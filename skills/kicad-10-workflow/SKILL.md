@@ -243,9 +243,9 @@ To avoid re-inventing standard circuits or guessing complex floorplans, leverage
      - Ethernet PHY RMII length-matched routing and magnetics isolation.
 2. **Interactive 3D Web Inspection:**
    - Use BoardRepo's browser-based WebGL viewer to inspect 3D assemblies, cross-layer component stackups, and schematic net hierarchies without needing local KiCad GUI instances.
-3. **MCP Tool Integration:**
-   - Configured in `~/.gemini/config/mcp_config.json` via remote SSE (`https://boardrepo.com/mcp`).
-   - Use MCP queries to inspect BOMs, netlists, and mechanical constraints directly within the agent workflow before synthesizing custom board geometries.
+3. **Reference Query Architecture:**
+   - Query BoardRepo's public open-source repository index to inspect BOMs, netlists, and mechanical constraints directly within the agent workflow before synthesizing custom board geometries. Note that BoardRepo's remote MCP endpoint requires interactive OAuth authentication in browser.
+
 
 ---
 
