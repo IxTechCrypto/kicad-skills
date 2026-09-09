@@ -247,3 +247,51 @@ To avoid re-inventing standard circuits or guessing complex floorplans, leverage
    - Configured in `~/.gemini/config/mcp_config.json` via remote SSE (`https://boardrepo.com/mcp`).
    - Use MCP queries to inspect BOMs, netlists, and mechanical constraints directly within the agent workflow before synthesizing custom board geometries.
 
+---
+
+## 8. Custom Component & Footprint Synthesis Standard
+
+When a component is missing from the standard KiCad library, follow the **3-Tier Footprint Synthesis Pipeline**:
+
+```
+                           ┌────────────────────────────┐
+                           │   CUSTOM PART REQUIRED     │
+                           └─────────────┬──────────────┘
+                                         │
+                 ┌───────────────────────┼───────────────────────┐
+                 ▼                       ▼                       ▼
+      [ Tier 1: LCSC / EasyEDA ] [ Tier 2: DSL / IPC-7351 ] [ Tier 3: Datasheet Draft ]
+      Turnkey Factory Match       Standard ICs & Passives     Irregular Connectors
+      - Fetch via LCSC C-number   - Footprinter DSL / Python   - Exact S-Expression CAD
+      - Zero drafting needed      - QFN, SOIC, BGA, DFN, SOT  - MicroSD, USB-C, RJ45
+```
+
+### Tier 1: LCSC / Turnkey Factory Footprints (Preferred)
+* Query part number via `KiCAD-MCP-Server` (`get_jlcpcb_part`) or `kicad-happy/lcsc` to ingest manufacturer-tested `.kicad_mod` assets directly into project `.pretty/` directory.
+
+### Tier 2: Parametric IPC-7351 Generator (`generate_footprint.py` / `tscircuit`)
+* For standard SMD packages (QFN, DFN, SOIC, TSSOP, SOT-23, passives) not in the library, generate standard IPC-7351B footprints with deterministic solder fillets:
+  - **Toe Fillet:** $+0.35\,\text{mm}$ (SMD IC lead extension)
+  - **Heel Fillet:** $+0.05\,\text{mm}$
+  - **Side Fillet:** $+0.05\,\text{mm}$
+  - **Courtyard Margin:** $+0.25\,\text{mm}$ around all pads
+* **Thermal Pad Solder Paste Gridding (CRITICAL):**
+  - Exposed ground pads ($>3.0\,\text{mm} \times 3.0\,\text{mm}$) must NEVER receive 100% continuous paste flood.
+  - Divide thermal pads into a $2\times 2$ or $3\times 3$ grid of paste apertures with **50%–65% total paste coverage** to allow flux outgassing and prevent IC float/open perimeter pins.
+* **CLI Generator:**
+  ```bash
+  # Generate QFN-32 with gridded thermal pad:
+  python tools/pcb_solver/generate_footprint.py --dsl "qfn32_5x5_p0.5_ep3.2" -o ./Custom.pretty/QFN-32.kicad_mod
+
+  # Generate SOIC-8:
+  python tools/pcb_solver/generate_footprint.py --dsl "soic8_p1.27" -o ./Custom.pretty/SOIC-8.kicad_mod
+  ```
+
+### Tier 3: Mechanical Drafting for Irregular Connectors & Hardware
+* For push-push MicroSD sockets, RJ45 Magjacks, USB-C, barrel jacks, and switches:
+  1. Draft exact mechanical pad coordinates directly from the manufacturer drawing.
+  2. Use `(drill oval W H)` for slotted metal shield tabs.
+  3. Validate insertion direction against the **Outward Facing Standard**.
+  4. Ensure clearance from opposite-layer SMT pads ($\ge 1.5\,\text{mm}$).
+
+
