@@ -105,3 +105,50 @@ This skill standardizes spatial floorplanning, component placement, RF mixed-sig
 | **Cross-Layer THT-to-SMT Clearance** | $\ge 1.50\,\text{mm}$ | $\ge 1.00\,\text{mm}$ |
 | **RF Antenna Keepout** | Strict 4-Layer Copper/Component Void | Strict 4-Layer Copper/Component Void |
 | **M3 / M2.5 Standoff Radial Keepout** | $r \ge 3.0\,\text{mm} / 2.75\,\text{mm}$ | $r \ge 3.0\,\text{mm} / 2.75\,\text{mm}$ |
+
+---
+
+## 6. Routing Algorithmic Paradigms & Router Selection Strategy
+
+When synthesizing or optimizing PCB trace geometry, select the appropriate routing architecture based on circuit sensitivity and topology:
+
+### A. The Two EDA Routing Paradigms
+
+```
+ ┌─────────────────────────────────────────────────────────┐
+ │               PCB ROUTING PARADIGMS                     │
+ ├────────────────────────────┬────────────────────────────┤
+ │ 1. Topological / Continuous│ 2. Discrete Graph-Based    │
+ │    (StefanSalewski/RBR)    │    (TraceForge / FreeRoute)│
+ │   - Homotopy-first         │   - Cost-matrix search     │
+ │   - Convex hull relaxation │   - A* / Dijkstra / Grid   │
+ │   - Organic curves / arcs  │   - 45° / 90° Manhattan    │
+ └────────────────────────────┴────────────────────────────┘
+```
+
+1. **Topological / Continuous Homotopy (e.g. RBR, TopoR):**
+   - Finds homotopy paths around obstacle disks, relaxing traces into organic curves.
+   - *Best for:* BGA/dense pin escape where orthogonal grids cause blockages.
+   - *Limitation:* Hard to constrain for rigid DFM, high-speed phase matching, or multi-layer via costing.
+2. **Discrete Graph-Based Pathfinding (e.g. A*, FreeRouting, TraceForge):**
+   - Discretizes layout into weighted nodes with cost function:
+     $$\text{Cost} = \text{Distance} + (\text{Corner 90}^\circ \text{ Penalty}) + (\text{Direction Change Penalty}) + (\text{Via Cost}) + \text{Keepout Proximity}$$
+   - *Best for:* Deterministic, standard 45° chamfered PCB routing complying directly with JLCPCB DFM and KiCad 10 S-expressions.
+
+### B. Routing Decision Ladder for Hardware Agents
+
+| Circuit / Bus Type | Recommended Routing Method | Rationale |
+| :--- | :--- | :--- |
+| **Power Stage Switching Loops ($V_{\text{SW}}, C_{\text{IN}}, C_{\text{OUT}}$)** | **Deterministic `pcbnew` Python Scripting** | Strict minimum loop area ($L = \mu \cdot l$), polygon pours, and thermal via stitching. |
+| **RF / Antenna Feeds & Controlled Impedance** | **Direct Point-to-Point Coplanar Waveguide** | Strict 0 vias, exact dielectric width, flanking ground via fencing. |
+| **High-Speed Differential (USB, TMDS, RMII)** | **KiCad PNS Interactive Router / Length Tuner** | Controlled impedance, continuous ground return plane, tight length matching ($\Delta L \le 0.5\,\text{mm}$). |
+| **Digital Fanout & Dense Buses (GPIO, I2C, SPI)** | **Graph-Based A* Solver (`astar_router.py`) or FreeRouting (DSN/SES)** | Automated collision-free 45° track generation with rip-up & reroute capability. |
+| **Post-Route Refinement & Shoving** | **KiCad Built-in Push-and-Shove (PNS)** | Real-time topological walkaround and obstacle shoving. |
+
+### C. Automated A* Router Solver CLI
+For automated single-trace or bus routing with 45° chamfers:
+```bash
+python tools/pcb_solver/astar_router.py --start <x1> <y1> --end <x2> <y2> --board-size 72 30 --width 0.25 --layer F.Cu --net <net_id>
+```
+Outputs ready-to-inject KiCad 10 `(segment ...)` S-expressions.
+
