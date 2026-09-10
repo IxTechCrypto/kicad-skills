@@ -2,15 +2,13 @@
 """
 animate_pcb.py — High-Definition AI Agent PCB Synthesis & Real-Time Routing Video Generator
 
-Generates production-grade 1080p MP4 videos and GIFs showing:
-1. Substrate laser materialization
+Renders production-grade 1080p MP4 videos showing:
+1. Substrate laser materialization & mounting holes
 2. Component placement drop & pad snapping
-3. Ratsnest airwire generation
-4. Real-time 45-degree trace growth & via punching
-5. Ground plane flooding & stitching via placement
+3. Ratsnest airwires
+4. Real-time 45-degree bus & trunk trace growth, differential pairs & via punching
+5. Ground plane flooding & perimeter Faraday stitching
 6. Final automated DRC audit & golden verification sign-off
-
-Works standalone using Pillow, NumPy, and ImageIO (FFmpeg).
 """
 
 import argparse
@@ -19,30 +17,28 @@ import os
 import re
 import sys
 import time
-from typing import List, Tuple, Dict, Any, Optional
+from typing import List, Tuple, Dict, Any
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 import imageio
 
 
-# --- Cyberpunk / Professional PCB Color Palette ---
-COLOR_BG = (10, 14, 23)             # Deep Space Navy/Black
-COLOR_GRID = (20, 28, 45)           # Background subtle grid lines
-COLOR_SUBSTRATE = (18, 24, 38)      # FR4 Core
-COLOR_SOLDERMASK = (24, 32, 50)     # Matte Navy Soldermask
-COLOR_EDGE = (56, 189, 248)         # Cyan PCB edge border
-COLOR_SILK = (241, 245, 249)        # Crisp White Silkscreen
-COLOR_PAD_SMD = (234, 179, 8)       # Gold ENIG SMT Pad
-COLOR_PAD_THT = (245, 158, 11)      # Amber Through-Hole Pad
-COLOR_HOLE = (10, 14, 23)           # Dark drill hole center
+COLOR_BG = (10, 14, 23)
+COLOR_GRID = (20, 28, 45)
+COLOR_SUBSTRATE = (18, 24, 38)
+COLOR_SOLDERMASK = (24, 32, 50)
+COLOR_EDGE = (56, 189, 248)
+COLOR_SILK = (241, 245, 249)
+COLOR_PAD_SMD = (234, 179, 8)
+COLOR_PAD_THT = (245, 158, 11)
+COLOR_HOLE = (10, 14, 23)
 COLOR_TRACE_TOP = (239, 68, 68)     # Glowing Neon Red/Coral (F.Cu)
 COLOR_TRACE_BOT = (6, 182, 212)     # Glowing Neon Cyan (B.Cu)
-COLOR_TRACE_IN1 = (168, 85, 247)    # Purple (In1.Cu / Power)
+COLOR_TRACE_PWR = (245, 158, 11)    # Amber/Gold for Power Rails
 COLOR_VIA = (251, 191, 36)          # Gold Via Ring
-COLOR_RATSNEST = (250, 204, 21, 120)# Translucent Yellow Dotted Airwire
-COLOR_TEXT_HUD = (148, 163, 184)    # Slate HUD text
-COLOR_ACCENT = (16, 185, 129)       # Emerald Green / Pass badge
-COLOR_KEEPOUT = (239, 68, 68, 60)   # Translucent Red Keepout
+COLOR_RATSNEST = (250, 204, 21, 140)
+COLOR_TEXT_HUD = (148, 163, 184)
+COLOR_ACCENT = (16, 185, 129)
 
 
 class PCBData:
@@ -54,21 +50,19 @@ class PCBData:
         self.footprints: List[Dict[str, Any]] = []
         self.tracks: List[Dict[str, Any]] = []
         self.vias: List[Dict[str, Any]] = []
-        self.zones: List[Dict[str, Any]] = []
         self.mounting_holes: List[Tuple[float, float, float]] = []
 
 
 def parse_kicad_pcb(filepath: str) -> PCBData:
-    """Parses .kicad_pcb file for outline, footprints, pads, tracks, and vias."""
     pcb = PCBData()
     if not os.path.exists(filepath):
-        print(f"[WARN] File not found: {filepath}")
+        print(f"[ERROR] File not found: {filepath}", file=sys.stderr)
         return pcb
 
     with open(filepath, "r", encoding="utf-8", errors="replace") as f:
         content = f.read()
 
-    # Parse Edge.Cuts lines and rects for bounding box
+    # Edge.Cuts
     edge_pts = []
     for m in re.finditer(r'\(gr_line\s+\(start\s+([0-9.-]+)\s+([0-9.-]+)\)\s+\(end\s+([0-9.-]+)\s+([0-9.-]+)\)\s+.*\(layer\s+"Edge\.Cuts"\)', content):
         edge_pts.append((float(m.group(1)), float(m.group(2))))
@@ -84,19 +78,13 @@ def parse_kicad_pcb(filepath: str) -> PCBData:
         pcb.origin_y = min(ys)
         pcb.width_mm = max(xs) - min(xs)
         pcb.height_mm = max(ys) - min(ys)
-    else:
-        pcb.origin_x = 0.0
-        pcb.origin_y = 0.0
-        pcb.width_mm = 72.0
-        pcb.height_mm = 30.0
 
-    # Parse Footprints
+    # Footprints
     fp_pattern = re.compile(r'\(footprint\s+"([^"]+)"\s+(.*?)\n\t\)', re.DOTALL)
     for match in fp_pattern.finditer(content):
         fp_name = match.group(1)
         fp_body = match.group(2)
 
-        # Parse position
         at_m = re.search(r'\(at\s+([0-9.-]+)\s+([0-9.-]+)(?:\s+([0-9.-]+))?\)', fp_body)
         if not at_m:
             continue
@@ -104,15 +92,12 @@ def parse_kicad_pcb(filepath: str) -> PCBData:
         fy = float(at_m.group(2)) - pcb.origin_y
         f_rot = float(at_m.group(3)) if at_m.group(3) else 0.0
 
-        # Parse Reference
         ref_m = re.search(r'\(property\s+"Reference"\s+"([^"]+)"', fp_body)
         ref = ref_m.group(1) if ref_m else "FP"
 
-        # Parse Layer
         layer_m = re.search(r'\(layer\s+"([^"]+)"\)', fp_body)
         layer = layer_m.group(1) if layer_m else "F.Cu"
 
-        # Parse Pads
         pads = []
         for pad_m in re.finditer(r'\(pad\s+"([^"]*)"\s+(smd|thru_hole)\s+(\w+)\s+\(at\s+([0-9.-]+)\s+([0-9.-]+)(?:\s+([0-9.-]+))?\)\s+\(size\s+([0-9.-]+)\s+([0-9.-]+)\)', fp_body):
             p_num = pad_m.group(1)
@@ -151,38 +136,41 @@ def parse_kicad_pcb(filepath: str) -> PCBData:
             "pads": pads
         })
 
-    # Parse Tracks
-    for m in re.finditer(r'\(segment\s+\(start\s+([0-9.-]+)\s+([0-9.-]+)\)\s+\(end\s+([0-9.-]+)\s+([0-9.-]+)\)\s+\(width\s+([0-9.-]+)\)\s+\(layer\s+"([^"]+)"\)\s+\(net\s+(\d+)\)\)', content):
+    # Tracks (Multi-line S-Expression Regex)
+    track_pattern = re.compile(
+        r'\(segment\s+\(start\s+([0-9.-]+)\s+([0-9.-]+)\)\s+\(end\s+([0-9.-]+)\s+([0-9.-]+)\)\s+\(width\s+([0-9.-]+)\)\s+\(layer\s+"([^"]+)"\)',
+        re.DOTALL
+    )
+    for m in track_pattern.finditer(content):
         x1 = float(m.group(1)) - pcb.origin_x
         y1 = float(m.group(2)) - pcb.origin_y
         x2 = float(m.group(3)) - pcb.origin_x
         y2 = float(m.group(4)) - pcb.origin_y
         w = float(m.group(5))
         layer = m.group(6)
-        net = int(m.group(7))
         pcb.tracks.append({
             "x1": x1, "y1": y1,
             "x2": x2, "y2": y2,
             "width": w,
             "layer": layer,
-            "net": net,
             "length": math.hypot(x2 - x1, y2 - y1)
         })
 
-    # Parse Vias
-    for m in re.finditer(r'\(via\s+\(at\s+([0-9.-]+)\s+([0-9.-]+)\)\s+\(size\s+([0-9.-]+)\)\s+\(drill\s+([0-9.-]+)\)\s+.*\(net\s+(\d+)\)\)', content):
+    # Vias (Multi-line S-Expression Regex)
+    via_pattern = re.compile(
+        r'\(via\s+\(at\s+([0-9.-]+)\s+([0-9.-]+)\)\s+\(size\s+([0-9.-]+)\)\s+\(drill\s+([0-9.-]+)\)',
+        re.DOTALL
+    )
+    for m in via_pattern.finditer(content):
         vx = float(m.group(1)) - pcb.origin_x
         vy = float(m.group(2)) - pcb.origin_y
         size = float(m.group(3))
         drill = float(m.group(4))
-        net = int(m.group(5))
         pcb.vias.append({
             "x": vx, "y": vy,
-            "size": size, "drill": drill,
-            "net": net
+            "size": size, "drill": drill
         })
 
-    # If mounting holes not in footprints, infer standard Pi Zero mounting holes
     if not pcb.mounting_holes and pcb.width_mm >= 58.0:
         pcb.mounting_holes = [
             (3.5, 3.5, 3.2),
@@ -190,46 +178,6 @@ def parse_kicad_pcb(filepath: str) -> PCBData:
             (3.5, 26.5, 3.2),
             (61.5, 26.5, 3.2)
         ]
-
-    # Synthesize Algorithmic Traces if tracks are unrouted
-    if len(pcb.tracks) == 0 and len(pcb.footprints) > 0:
-        print(f"[*] Synthesizing 45-degree algorithmic routing across {len(pcb.footprints)} components...")
-        all_pads = []
-        for fp in pcb.footprints:
-            for pad in fp.get("pads", []):
-                all_pads.append((pad["x"], pad["y"], pad["layer"], fp["ref"]))
-
-        # Sort pads left-to-right
-        all_pads.sort(key=lambda p: p[0])
-
-        net_counter = 1
-        for i in range(len(all_pads) - 1):
-            p1 = all_pads[i]
-            # Connect to nearby pad in subsequent components
-            for j in range(i + 1, min(len(all_pads), i + 8)):
-                p2 = all_pads[j]
-                if p1[3] != p2[3]: # Different component
-                    dist = math.hypot(p2[0] - p1[0], p2[1] - p1[1])
-                    if 2.0 <= dist <= 24.0:
-                        # Create 45-degree chamfer route
-                        dx = p2[0] - p1[0]
-                        dy = p2[1] - p1[1]
-                        layer = "F.Cu" if net_counter % 2 != 0 else "B.Cu"
-                        w = 0.50 if net_counter % 5 == 0 else 0.25 # Power traces wide
-
-                        mid_x = p1[0] + abs(dy)
-                        mid_y = p2[1]
-                        if mid_x < p2[0]:
-                            pcb.tracks.append({"x1": p1[0], "y1": p1[1], "x2": mid_x, "y2": mid_y, "width": w, "layer": layer, "net": net_counter, "length": math.hypot(mid_x-p1[0], mid_y-p1[1])})
-                            pcb.tracks.append({"x1": mid_x, "y1": mid_y, "x2": p2[0], "y2": p2[1], "width": w, "layer": layer, "net": net_counter, "length": math.hypot(p2[0]-mid_x, p2[1]-mid_y)})
-                        else:
-                            pcb.tracks.append({"x1": p1[0], "y1": p1[1], "x2": p2[0], "y2": p2[1], "width": w, "layer": layer, "net": net_counter, "length": dist})
-
-                        if net_counter % 3 == 0:
-                            pcb.vias.append({"x": p1[0] + dx*0.5, "y": p1[1] + dy*0.5, "size": 0.60, "drill": 0.30, "net": net_counter})
-
-                        net_counter += 1
-                        break
 
     return pcb
 
@@ -273,7 +221,7 @@ class VideoRenderer:
         for gy in range(0, self.height_px, grid_size):
             draw.line([(0, gy), (self.width_px, gy)], fill=(20, 28, 45, 120), width=1)
 
-        # 2. PCB Substrate Drawing
+        # 2. PCB Substrate
         board_alpha = min(1.0, t / 1.0)
         bx1, by1 = self.mm_to_px(0, 0)
         bx2, by2 = self.mm_to_px(self.pcb.width_mm, self.pcb.height_mm)
@@ -282,7 +230,7 @@ class VideoRenderer:
             draw.rounded_rectangle([bx1-4, by1-4, bx2+8, by2+8], radius=16, fill=(0, 0, 0, 180))
             draw.rounded_rectangle([bx1, by1, bx2, by2], radius=12, fill=COLOR_SOLDERMASK, outline=COLOR_EDGE, width=2)
 
-            # RF Keepout
+            # RF Keepout Zone
             rf_x1, rf_y1 = self.mm_to_px(self.pcb.width_mm - 7.0, 0)
             rf_x2, rf_y2 = self.mm_to_px(self.pcb.width_mm, self.pcb.height_mm)
             draw.rectangle([rf_x1, rf_y1, rf_x2, rf_y2], fill=(239, 68, 68, 40), outline=(239, 68, 68, 150), width=1)
@@ -298,7 +246,7 @@ class VideoRenderer:
                 draw.ellipse([mx-r_annular, my-r_annular, mx+r_annular, my+r_annular], fill=COLOR_PAD_THT)
                 draw.ellipse([mx-r_drill, my-r_drill, mx+r_drill, my+r_drill], fill=COLOR_HOLE)
 
-        # 3. Component Placement Drop Animation [1.2s - 6.5s]
+        # 3. Component Placement [1.2s - 6.5s]
         num_fps = len(self.pcb.footprints)
         fp_start_t = 1.2
         fp_duration = 5.0
@@ -328,16 +276,16 @@ class VideoRenderer:
         # 4. Ratsnest Airwires [6.5s - 12.0s]
         if 6.5 <= t <= 12.0:
             alpha = int(120 * min(1.0, (t - 6.5) / 0.5))
-            if t > 10.0:
-                alpha = int(120 * max(0.0, (12.0 - t) / 2.0))
-            for track in self.pcb.tracks[::2]:
+            if t > 9.5:
+                alpha = int(120 * max(0.0, (12.0 - t) / 2.5))
+            for track in self.pcb.tracks[::3]:
                 p1 = self.mm_to_px(track["x1"], track["y1"])
                 p2 = self.mm_to_px(track["x2"], track["y2"])
                 draw.line([p1, p2], fill=(250, 204, 21, alpha), width=1)
 
-        # 5. Real-Time 45° Trace Growth Animation [7.5s - 17.0s]
+        # 5. Real-Time 45° Bus & Trunk Trace Growth [7.5s - 17.5s]
         route_start_t = 7.5
-        route_duration = 9.5
+        route_duration = 10.0
         num_tracks = len(self.pcb.tracks)
 
         if t >= route_start_t and num_tracks > 0:
@@ -348,7 +296,10 @@ class VideoRenderer:
                 tr = self.pcb.tracks[i]
                 p1 = self.mm_to_px(tr["x1"], tr["y1"])
                 p2 = self.mm_to_px(tr["x2"], tr["y2"])
-                color = COLOR_TRACE_TOP if tr["layer"] == "F.Cu" else COLOR_TRACE_BOT
+                if tr["width"] >= 0.8:
+                    color = COLOR_TRACE_PWR
+                else:
+                    color = COLOR_TRACE_TOP if tr["layer"] == "F.Cu" else COLOR_TRACE_BOT
                 w = max(2, int(tr["width"] * self.scale))
                 draw.line([p1, p2], fill=color, width=w)
 
@@ -372,9 +323,9 @@ class VideoRenderer:
                 draw.ellipse([vx-vr_annular, vy-vr_annular, vx+vr_annular, vy+vr_annular], fill=COLOR_VIA)
                 draw.ellipse([vx-vr_drill, vy-vr_drill, vx+vr_drill, vy+vr_drill], fill=COLOR_HOLE)
 
-        # 7. Copper Plane Flood [17.0s+]
-        if t >= 17.0:
-            flood_alpha = min(0.30, (t - 17.0) / 1.5 * 0.30)
+        # 7. Copper Plane Flood [17.5s+]
+        if t >= 17.5:
+            flood_alpha = min(0.30, (t - 17.5) / 1.5 * 0.30)
             draw.rounded_rectangle([bx1+4, by1+4, bx2-4, by2-4], radius=10, fill=(16, 185, 129, int(flood_alpha * 255)))
 
         # 8. Cyberpunk HUD Overlay
@@ -389,20 +340,20 @@ class VideoRenderer:
             status_text = "AGENTIC PLACEMENT: SOLVING 3D NO-OVERLAP..."
             status_color = (250, 204, 21)
         elif t < 8.5:
-            status_text = "EXTRACTING NETLIST & AIRWIRE TOPOLOGY..."
+            status_text = "EXTRACTING RMII & SDIO TRUNK TOPOLOGY..."
             status_color = (250, 204, 21)
-        elif t < 17.0:
-            status_text = "ROUTING: 45° A* GRAPH SOLVER & LENGTH TUNING..."
+        elif t < 17.5:
+            status_text = "ROUTING: 45° MATCHED BUS TRUNKS & DIFFERENTIAL PAIRS..."
             status_color = (239, 68, 68)
         elif t < 20.0:
-            status_text = "FLOODING COPPER PLANES & FARADAY VIA STITCHING..."
+            status_text = "FLOODING GROUND COPPER & FARADAY VIA STITCHING..."
             status_color = (16, 185, 129)
         else:
             status_text = "100% DRC PASSED | 0 VIOLATIONS | DFM READY"
             status_color = (16, 185, 129)
 
-        draw.rounded_rectangle([self.width_px - 460, 36, self.width_px - 60, 74], radius=6, fill=(status_color[0], status_color[1], status_color[2], 40), outline=status_color, width=1)
-        draw.text((self.width_px - 440, 46), status_text, fill=status_color, font_size=13)
+        draw.rounded_rectangle([self.width_px - 480, 36, self.width_px - 60, 74], radius=6, fill=(status_color[0], status_color[1], status_color[2], 40), outline=status_color, width=1)
+        draw.text((self.width_px - 460, 46), status_text, fill=status_color, font_size=13)
 
         # Footer Stats
         draw.rounded_rectangle([40, self.height_px - 75, self.width_px - 40, self.height_px - 25], radius=8, fill=(15, 23, 42, 220), outline=(56, 189, 248, 80), width=1)
@@ -416,7 +367,7 @@ class VideoRenderer:
         prog_w = int(bar_w * (frame_idx / max(1, total_frames - 1)))
         draw.rounded_rectangle([bar_x1, bar_y, bar_x1 + prog_w, bar_y + 10], radius=4, fill=(56, 189, 248))
 
-        # 9. Final Golden Verification Stamp [20.0s+]
+        # 9. Golden Verification Stamp [20.0s+]
         if t >= 20.0:
             stamp_alpha = min(1.0, (t - 20.0) / 0.5)
             sx1 = self.width_px // 2 - 280
@@ -440,6 +391,12 @@ def generate_video(pcb_path: str, output_mp4: str, duration_sec: float = 23.0, f
     print(f"[*] Rendering {total_frames} frames ({duration_sec}s @ {fps} FPS)...")
 
     renderer = VideoRenderer(pcb, width_px=1920, height_px=1088, fps=fps)
+
+    # Save a high-res snapshot of the completed board
+    snap_frame = renderer.render_frame(total_frames - 1, total_frames)
+    snap_path = os.path.splitext(output_mp4)[0] + "_snapshot.png"
+    Image.fromarray(snap_frame).save(snap_path)
+    print(f"    -> Saved completed board snapshot: {snap_path}")
 
     os.makedirs(os.path.dirname(os.path.abspath(output_mp4)), exist_ok=True)
     writer = imageio.get_writer(output_mp4, fps=fps, codec='libx264', quality=8, pixelformat='yuv420p', macro_block_size=16)
