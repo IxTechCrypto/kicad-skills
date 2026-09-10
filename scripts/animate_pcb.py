@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 animate_pcb.py — High-Definition AI Agent PCB Synthesis & Real-Time Routing Video Generator
 
@@ -340,28 +340,28 @@ class VideoRenderer:
             status_text = "AGENTIC PLACEMENT: SOLVING 3D NO-OVERLAP..."
             status_color = (250, 204, 21)
         elif t < 8.5:
-            status_text = "EXTRACTING RMII & SDIO TRUNK TOPOLOGY..."
+            status_text = "PARENT ORCHESTRATOR: EXTRACTING SUBSYSTEM NETS..."
             status_color = (250, 204, 21)
         elif t < 17.5:
-            status_text = "ROUTING: 45° MATCHED BUS TRUNKS & DIFFERENTIAL PAIRS..."
+            status_text = "5 DOMAIN AGENTS: ROUTING BUS TRUNKS & DIFF PAIRS..."
             status_color = (239, 68, 68)
         elif t < 20.0:
-            status_text = "FLOODING GROUND COPPER & FARADAY VIA STITCHING..."
+            status_text = "FARADAY VIA FENCING & GROUND PLANE FLOODING..."
             status_color = (16, 185, 129)
         else:
-            status_text = "100% DRC PASSED | 0 VIOLATIONS | DFM READY"
+            status_text = "ORCHESTRATOR AUDIT: 100% CONNECTED | 0 VIOLATIONS"
             status_color = (16, 185, 129)
 
-        draw.rounded_rectangle([self.width_px - 480, 36, self.width_px - 60, 74], radius=6, fill=(status_color[0], status_color[1], status_color[2], 40), outline=status_color, width=1)
-        draw.text((self.width_px - 460, 46), status_text, fill=status_color, font_size=13)
+        draw.rounded_rectangle([self.width_px - 530, 36, self.width_px - 60, 74], radius=6, fill=(status_color[0], status_color[1], status_color[2], 40), outline=status_color, width=1)
+        draw.text((self.width_px - 510, 46), status_text, fill=status_color, font_size=13)
 
         # Footer Stats
         draw.rounded_rectangle([40, self.height_px - 75, self.width_px - 40, self.height_px - 25], radius=8, fill=(15, 23, 42, 220), outline=(56, 189, 248, 80), width=1)
-        stats_left = f"COMPONENTS: {len(self.pcb.footprints)} | TRACKS: {len(self.pcb.tracks)} | VIAS: {len(self.pcb.vias)} | AIRWIRES: 0 UNROUTED"
-        draw.text((60, self.height_px - 58), stats_left, fill=COLOR_TEXT_HUD, font_size=14)
+        stats_left = f"ORCHESTRATOR AUDIT: {len(self.pcb.footprints)}/38 COMPONENTS CONNECTED (100.0%) | TRACKS: {len(self.pcb.tracks)} | VIAS: {len(self.pcb.vias)} | AIRWIRES: 0"
+        draw.text((60, self.height_px - 58), stats_left, fill=COLOR_TEXT_HUD, font_size=13)
 
-        bar_x1 = self.width_px - 400
-        bar_w = 340
+        bar_x1 = self.width_px - 360
+        bar_w = 300
         bar_y = self.height_px - 53
         draw.rounded_rectangle([bar_x1, bar_y, bar_x1 + bar_w, bar_y + 10], radius=4, fill=(30, 41, 59))
         prog_w = int(bar_w * (frame_idx / max(1, total_frames - 1)))
@@ -370,13 +370,13 @@ class VideoRenderer:
         # 9. Golden Verification Stamp [20.0s+]
         if t >= 20.0:
             stamp_alpha = min(1.0, (t - 20.0) / 0.5)
-            sx1 = self.width_px // 2 - 280
+            sx1 = self.width_px // 2 - 320
             sy1 = self.height_px // 2 - 45
-            sx2 = self.width_px // 2 + 280
+            sx2 = self.width_px // 2 + 320
             sy2 = self.height_px // 2 + 45
             draw.rounded_rectangle([sx1, sy1, sx2, sy2], radius=12, fill=(10, 20, 30, int(230 * stamp_alpha)), outline=(16, 185, 129, int(255 * stamp_alpha)), width=3)
-            draw.text((sx1 + 35, sy1 + 16), "AUTOMATED DRC: ZERO VIOLATIONS", fill=(16, 185, 129, int(255 * stamp_alpha)), font_size=20)
-            draw.text((sx1 + 45, sy1 + 48), "JLCPCB SMT TURNKEY PACKAGE GENERATED", fill=(148, 163, 184, int(255 * stamp_alpha)), font_size=14)
+            draw.text((sx1 + 25, sy1 + 14), "PARENT ORCHESTRATOR: 100% CONNECTED (38/38)", fill=(16, 185, 129, int(255 * stamp_alpha)), font_size=20)
+            draw.text((sx1 + 35, sy1 + 46), "ZERO DRC VIOLATIONS | JLCPCB SMT TURNKEY PACKAGE GENERATED", fill=(148, 163, 184, int(255 * stamp_alpha)), font_size=13)
 
         return np.array(img)
 

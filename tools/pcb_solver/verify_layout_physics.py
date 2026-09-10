@@ -44,6 +44,7 @@ class PCBPhysicsValidator:
         self.check_mounting_hole_standoffs(min_radius_mm=3.0)
         self.check_actuator_strain_isolation()
         self.check_connector_outward_vectors()
+        self.check_orchestrator_component_connectivity(search_radius_mm=1.8)
 
         if self.report.violations:
             self.report.passed = False
@@ -206,6 +207,47 @@ class PCBPhysicsValidator:
                     self.report.violations.append(f"INWARD CONNECTOR: {ref} ({fp.GetValue()}) on {layer} at ({px:.1f},{py:.1f}) points INWARD (+Y) instead of OUTWARD (-Y)")
                 elif min_d == d_bottom and vy < -0.5:
                     self.report.violations.append(f"INWARD CONNECTOR: {ref} ({fp.GetValue()}) on {layer} at ({px:.1f},{py:.1f}) points INWARD (-Y) instead of OUTWARD (+Y)")
+
+    def check_orchestrator_component_connectivity(self, search_radius_mm: float = 1.8):
+        """Parent Orchestrator audit: verifies all components have active copper routing."""
+        footprints = list(self.board.GetFootprints())
+        tracks = list(self.board.GetTracks())
+
+        disconnected = []
+        for fp in footprints:
+            ref = fp.GetReference()
+            pads = list(fp.Pads())
+            is_mounting_hole = ref.startswith("H") or "MountingHole" in fp.GetFPIDAsString()
+            if is_mounting_hole:
+                continue
+
+            has_conn = False
+            for pad in pads:
+                ppos = pad.GetPosition()
+                px, py = ppos.x / 1e6, ppos.y / 1e6
+                for t in tracks:
+                    if t.Type() == pcbnew.PCB_VIA_T:
+                        vx, vy = t.GetPosition().x / 1e6, t.GetPosition().y / 1e6
+                        if math.hypot(px - vx, py - vy) <= search_radius_mm:
+                            has_conn = True
+                            break
+                    elif t.Type() in (pcbnew.PCB_TRACE_T, pcbnew.PCB_ARC_T):
+                        sx, sy = t.GetStart().x / 1e6, t.GetStart().y / 1e6
+                        ex, ey = t.GetEnd().x / 1e6, t.GetEnd().y / 1e6
+                        if math.hypot(px - sx, py - sy) <= search_radius_mm or math.hypot(px - ex, py - ey) <= search_radius_mm:
+                            has_conn = True
+                            break
+                if has_conn:
+                    break
+
+            if not has_conn:
+                disconnected.append(ref)
+
+        if disconnected:
+            self.report.violations.append(
+                f"ORCHESTRATOR CONNECTIVITY VIOLATION: {len(disconnected)} unrouted/disconnected component(s) detected: {', '.join(disconnected)}"
+            )
+
 
 if __name__ == "__main__":
     target = sys.argv[1] if len(sys.argv) > 1 else r"d:\github\miner-display-bridge\hardware\miner_bridge_pcb\miner_bridge_pcb.kicad_pcb"
