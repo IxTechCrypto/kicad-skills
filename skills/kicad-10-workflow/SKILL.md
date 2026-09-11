@@ -294,4 +294,20 @@ When a component is missing from the standard KiCad library, follow the **3-Tier
   3. Validate insertion direction against the **Outward Facing Standard**.
   4. Ensure clearance from opposite-layer SMT pads ($\ge 1.5\,\text{mm}$).
 
+---
+
+## 9. Automated Fabrication & Release Package Pipeline
+Before submitting boards to JLCPCB, PCBWay, or OSH Park, generate a complete, deterministic production package in a single pass:
+
+```bash
+python scripts/export_production.py path/to/board.kicad_pcb
+```
+
+### Outputs Generated in `./production/`:
+1. **`<BoardName>_gerbers.zip`:** Contains all standard copper layers (`F.Cu`, `B.Cu`, `In1.Cu`, `In2.Cu`), solder mask, paste, silkscreen, Edge.Cuts, and independent Excellon drill files (`PTH` + `NPTH` in mm) ready for instant upload to JLCPCB/PCBWay.
+2. **`assembly/<BoardName>-pos.csv`:** Surface-mount component centroid placement file (X/Y coordinates, rotation, layer) for pick-and-place machines.
+3. **`bom/<BoardName>-ibom.html`:** Interactive HTML BOM powered by `InteractiveHtmlBom` for visual bench assembly, component verification, and hand-soldering.
+4. **`documentation/<BoardName>-schematic.pdf`:** Clean vector schematic document (if `.kicad_sch` is present).
+
+
 

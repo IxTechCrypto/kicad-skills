@@ -83,6 +83,43 @@ This skill standardizes spatial floorplanning, component placement, RF mixed-sig
 2. **Switching Node ($LX / SW$):** Keep the copper polygon connecting the buck IC switch pin to the inductor short and wide to minimize radiated EMI.
 3. **Output Capacitor Bank:** Align output capacitors in parallel immediately following the inductor, returning directly to the IC power ground.
 
+### B. High-Current ASIC Power Delivery Network (PDN) & Thermal Math (IPC-2152 & Saturn PCB)
+For high-density ASIC boards (Bitaxe, NerdAxe, BitForge) with core rails pulling 10A to 50A+ at sub-1.2V voltages, apply exact IPC-2152 / Saturn PCB Toolkit mathematical constraints:
+
+1. **Trace & Polygon Width Sizing (External Copper at $\Delta T = 10^\circ\text{C}$):**
+   - **$1\,\text{oz}$ Copper ($35\,\mu\text{m}$):**
+     - $2.5\,\text{A} \implies \ge 1.0\,\text{mm}$ width
+     - $5.0\,\text{A} \implies \ge 2.2\,\text{mm}$ width
+     - $10.0\,\text{A} \implies \ge 5.2\,\text{mm}$ polygon pour
+     - $20.0\,\text{A} \implies \ge 12.5\,\text{mm}$ polygon pour
+   - **$2\,\text{oz}$ Copper ($70\,\mu\text{m}$):**
+     - $5.0\,\text{A} \implies \ge 1.1\,\text{mm}$ width
+     - $10.0\,\text{A} \implies \ge 2.6\,\text{mm}$ polygon pour
+     - $20.0\,\text{A} \implies \ge 6.3\,\text{mm}$ polygon pour
+     - $30.0\,\text{A} \implies \ge 10.5\,\text{mm}$ polygon pour
+   - *Rule:* For rails $> 10\,\text{A}$, NEVER route discrete tracks. Route unbroken copper polygons across top and bottom layers with thermal stitching.
+
+2. **Via Array Sizing & DC Resistance ($0.3\,\text{mm}$ drill / $25\,\mu\text{m}$ barrel plating):**
+   - Single via current rating: **$1.8\text{--}1.9\,\text{A}$** continuous at $\Delta T = 10^\circ\text{C}$.
+   - Single via DC resistance ($1.6\,\text{mm}$ board height): **$1.08\,\text{m}\Omega$**.
+   - **Via Array Calculation ($N_{\text{vias}} = \lceil I / 1.8 \rceil \times 1.25$):**
+     - **$5\,\text{A}$ Rail:** $\ge 4$ vias ($R_{\text{array}} \approx 0.27\,\text{m}\Omega$, $\Delta V \approx 1.35\,\text{mV}$)
+     - **$10\,\text{A}$ Rail:** $\ge 7\text{--}8$ vias ($R_{\text{array}} \approx 0.14\,\text{m}\Omega$, $\Delta V \approx 1.4\,\text{mV}$)
+     - **$15\,\text{A}$ Rail:** $\ge 10\text{--}12$ vias ($R_{\text{array}} \approx 0.10\,\text{m}\Omega$, $\Delta V \approx 1.5\,\text{mV}$)
+     - **$25\,\text{A}$ Rail:** $\ge 18\text{--}20$ vias ($R_{\text{array}} \approx 0.05\,\text{m}\Omega$, $\Delta V \approx 1.3\,\text{mV}$)
+   - *Via Pitch:* Maintain $0.8\text{--}1.2\,\text{mm}$ center-to-center pitch in a staggered hexagonal grid to maximize plane thermal spreading without perforating the copper plane into Swiss cheese.
+
+3. **Planar Power/Ground Inter-Layer Capacitance:**
+   - With a thin $0.10\,\text{mm}$ prepreg dielectric between L1 (Core VDD) and L2 (GND), capacitance is **$\approx 38\,\text{pF}/\text{cm}^2$**.
+   - A $25\,\text{cm}^2$ ASIC plane provides $\approx 950\,\text{pF}$ of zero-ESL distributed capacitance, absorbing sub-nanosecond multi-gigahertz current steps before discrete ceramic capacitors can react.
+
+4. **CLI Sizing Helper:**
+   ```bash
+   python d:\github\kicad-skills\scripts\trace_calc.py via <amps> -d 0.3 -t 10
+   python d:\github\kicad-skills\scripts\trace_calc.py current <amps> -w 2.0 -t 10
+   python d:\github\kicad-skills\scripts\trace_calc.py plane <area_cm2> -H 0.1
+   ```
+
 ---
 
 ## 4. High-Speed & Differential Routing
