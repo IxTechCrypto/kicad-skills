@@ -39,6 +39,9 @@ _autosave-*
 *.svg
 erc_report.json
 drc_report.json
+evals_report.json
+evals/mock_suite/
+evals/*.json
 
 # OS specific
 .DS_Store

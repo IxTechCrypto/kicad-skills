@@ -7,7 +7,14 @@ description: Modern KiCad 10 hardware design, schematic engineering, PCB layout,
 
 This skill standardizes modern KiCad 10 electronic design automation (EDA) for AI coding agents and engineers, bridging deterministic CLI rule checks, Python `pcbnew` geometric operations, deep circuit analysis, and closed-loop visual validation.
 
-> **Attribution Notice:** Circuit diagnostic methodology and EMC pre-compliance concepts adapted from Andrew Klofas's [kicad-happy](https://github.com/aklofas/kicad-happy). EDA engine powered by [KiCad EDA](https://kicad.org/). Full credits in [ATTRIBUTION.md](../../ATTRIBUTION.md).
+> **Architecture Update & Progressive Disclosure:** Hardware design in KiCad 10 is now modularized into specialized domain packs. Begin every project with [`kicad-core`](../kicad-core/SKILL.md) to classify the board regime and load the respective domain pack:
+> - **High-Current / ASIC Miners:** [`kicad-highcurrent`](../kicad-highcurrent/SKILL.md)
+> - **High-Speed Digital & Ethernet:** [`kicad-highspeed`](../kicad-highspeed/SKILL.md)
+> - **Low-Power RF & Solar IoT:** [`kicad-rf-lowpower`](../kicad-rf-lowpower/SKILL.md)
+> - **Datasheet Part & Footprint Synthesis:** [`kicad-newpart`](../kicad-newpart/SKILL.md)
+> - **Architecture Stress-Testing:** [`grill-me`](../grill-me/SKILL.md)
+>
+> *This workflow file remains fully active as the master reference for toolchain binaries, S-expression formats, usability inspection gates, BoardRepo reference designs, and production export.*
 
 ---
 

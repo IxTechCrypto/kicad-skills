@@ -1,14 +1,14 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
-astar_router.py — Graph-Based 45-Degree PCB Trace Pathfinding Router
+astar_router.py — Graph-Based 45-Degree PCB Trace Pathfinding Router (PROTOTYPE)
 
-Applies grid-based A* graph search with:
-- 45-degree and orthogonal (8-directional) movements
-- 90-degree corner penalties (enforcing smooth 45-degree chamfers)
-- Direction change penalties
-- Obstacle clearance inflation (pads, vias, keepouts)
-- Multi-layer via transition costing
-- S-expression track output for KiCad 10 (.kicad_pcb)
+CAUTION & USAGE NOTICE:
+This is an isolated grid-based pathfinding prototype operating on an unpopulated
+canvas. It does NOT parse obstacle polygons from an existing .kicad_pcb file.
+For production boards, do NOT route open-loop using this script. Instead use:
+1. Level 1: Scripted pcbnew Python geometry for power trunks and escapes
+2. Level 2: Freerouting (via DSN/SES export/import) or native KiCad PNS router
+3. Level 3: route_and_verify.py for incremental DRC-verified single net additions.
 """
 
 import argparse
