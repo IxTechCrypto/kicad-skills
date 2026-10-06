@@ -53,6 +53,8 @@ flowchart TD
 
 ### 2. Solvers, Routers & Verifiers (`tools/` & `scripts/`)
 
+* **`scripts/route_pcb.py`**: Unified autonomous autorouting hub. Auto-discovers and orchestrates **TraceMaker**, FreeRouting, or Python $A^*$, executes pre-flight escape feasibility analysis, and validates with headless KiCad 10 DRC.
+* **`tools/pcb_solver/tracemaker_bridge.py`**: High-performance Python bridge for [DingoOz/TraceMaker](https://github.com/DingoOz/TraceMaker) (C++20/CUDA native KiCad placement & routing engine) with Apple Silicon CPU-only and Docker fallback.
 * **`tools/pcb_solver/route_and_verify.py`**: Closed-loop incremental 45° track router. Routes nets one-by-one, executes headless DRC after every modification, and automatically rolls back on violation.
 * **`tools/pcb_solver/verify_layout_physics.py`**: Automated multi-layer 3D collision pre-flight gate. Detects cross-layer THT pin penetrations into opposite SMT pads ($\ge 1.5\,\text{mm}$ rule), RF antenna void breaches, M3/M2.5 standoff keepouts, and inward-facing connectors.
 * **`tools/pcb_solver/generate_footprint.py`**: Parametric IPC-7351B footprint generator for custom SMD IC packages (QFN, DFN, SOIC, TSSOP, SOT) with automatic **thermal pad solder paste gridding** ($2\times 2$ / $3\times 3$ apertures).
@@ -138,6 +140,7 @@ See [**ATTRIBUTION.md**](ATTRIBUTION.md) for full citations.
 * **[PCB Runner](https://www.pcbrunner.com/a-complete-guide-to-pcb-routing-design-rules-and-best-practices-for-success/#Ground_and_Power_Planes):** Formed the foundational signal integrity and PCB routing engineering rules.
 * **[Altium Academy / Phil Salmony (Phil's Lab)](https://youtu.be/D0X76Kbf8fQ):** Reconciled $3H$ dielectric height crosstalk rule, via antipad clearance void keepouts, and low-inductance decoupling geometry.
 * **[PCBWorld / PCBWorld-Bench (LG AI Research & Seoul National University)](https://arxiv.org/abs/2607.05915):** Benchmark methodology and empirical proof that deterministic routers + per-step DRC feedback outscale raw LLM geometry generation.
+* **[DingoOz/TraceMaker](https://github.com/DingoOz/TraceMaker):** Native C++20/CUDA placement-aware autorouting architecture and lossless KiCad 9/10 integration.
 * **[mixelpixx/KiCAD-MCP-Server](https://github.com/mixelpixx/KiCAD-MCP-Server):** Local SQLite FTS5 JLCPCB catalog search architecture.
 * **[BoardRepo](https://boardrepo.com/):** Web-based hardware repository and MCP platform for open-source reference design retrieval.
 * **[KiCad EDA](https://kicad.org/):** The world-class open-source EDA suite.

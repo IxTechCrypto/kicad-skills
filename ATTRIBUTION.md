@@ -48,7 +48,16 @@ Our tooling and workflows are deeply inspired by the pioneering MCP implementati
 
 ---
 
-### 6. Standards & Manufacturing Organizations
+### 6. TraceMaker (Placement-Aware KiCad Autorouter)
+* **Author / Project:** DingoOz ([@DingoOz](https://github.com/DingoOz))
+* **Repository:** [DingoOz/TraceMaker](https://github.com/DingoOz/TraceMaker)
+* **Contributions:** 
+  * Pioneered native C++20/CUDA placement-aware autorouting for KiCad 9 & 10, eliminating lossy Specctra DSN/SES file conversions.
+  * Inspired our unified router bridge (`tools/pcb_solver/tracemaker_bridge.py` and `scripts/route_pcb.py`), pre-flight escape feasibility analysis, and native `.kicad_dru` custom rule integration for autonomous AI hardware agents.
+
+---
+
+### 7. Standards & Manufacturing Organizations
 * **IPC (Association Connecting Electronics Industries):**
   * **IPC-2152**: Standard for Determining Current-Carrying Capacity in Printed Board Design (basis for `scripts/trace_calc.py`).
   * **IPC-2221**: Generic Standard on Printed Board Design.
@@ -58,5 +67,5 @@ Our tooling and workflows are deeply inspired by the pioneering MCP implementati
 
 ---
 
-### 7. Community Inspiration
+### 8. Community Inspiration
 * Thanks to the active electronics design and AI engineering community on **X (Twitter)** whose experiments and prompts on autonomous KiCad project generation sparked the creation and open-sourcing of this repository.

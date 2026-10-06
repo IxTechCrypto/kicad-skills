@@ -69,10 +69,10 @@ Level 1: Power & Heavy Ground Highways (Semi-Automated)
          ↳ Scripted native `pcbnew` Python polygons with 45° chamfers & thermal via arrays.
          ↳ Directly connects heavy buck stages, inductors, and input protection.
 
-Level 2: Dense Digital & Bus Routing (Automated Solver)
-         ↳ Export Specctra DSN (`kicad-cli pcb export dsn`).
-         ↳ Solve with Freerouting or native KiCad PNS push-and-shove router.
-         ↳ Re-import SES session file (`kicad-cli pcb import ses`).
+Level 2: Dense Digital & Bus Routing (Automated Solver Hub)
+         ↳ Execute unified solver: `python scripts/route_pcb.py <board.kicad_pcb> --engine auto`
+         ↳ Automatically leverages TraceMaker (native C++20/CUDA or Apple Silicon CPU) with .kicad_dru custom rules.
+         ↳ Transparently falls back to FreeRouting / Python A* if needed.
 
 Level 3: Escape & Trivial Jumpers (Scripted A* or Native API)
          ↳ Use `tools/pcb_solver/route_and_verify.py` for incremental net routing with immediate DRC delta check.
