@@ -79,6 +79,20 @@ Level 3: Escape & Trivial Jumpers (Scripted A* or Native API)
          ↳ Use `tools/pcb_solver/route_and_verify.py` for incremental net routing with immediate DRC delta check.
 ```
 
+### 🤖 Autonomous Routing Directive (Hands-Off Agent Protocol)
+When the user asks you to route a board, connect nets, or visualize trace generation:
+* **NEVER tell the user to run scripts manually.** Proactively execute the tool yourself via your bash/command tool.
+* **Live In-Browser Visualization Request:** (User says *"route it live"*, *"watch it route"*, *"show me the routing"*):
+  ```bash
+  python scripts/run_fastroute.py <board.kicad_pcb> --live
+  ```
+  *(Spins up local server and automatically pops `http://127.0.0.1:7878` in their default web browser in real time).*
+* **Standard Background Routing Request:** (User says *"route this board"*, *"autoroute"*, *"finish layout"*):
+  ```bash
+  python scripts/run_fastroute.py <board.kicad_pcb> -o <board.kicad_pcb>
+  ```
+* **Post-Route Gate:** Always follow up by running `kicad-cli pcb drc` to confirm 0 unrouted nets and 0 DRC violations.
+
 ---
 
 ## 4. Deterministic Quality Gates (Zero-Tolerance)

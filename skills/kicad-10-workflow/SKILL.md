@@ -28,6 +28,20 @@ KiCad 10 introduces enhanced CLI subcommands and a modernized Python API (`pcbne
 | **macOS** | `/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli` | `/Applications/KiCad/KiCad.app/Contents/Frameworks/Python.framework/Versions/Current/bin/python3` |
 | **Linux** | `/usr/bin/kicad-cli` | `/usr/bin/python3` (with `python3-kicad` installed) |
 
+### 🤖 Autonomous Routing Protocol (Zero-Friction Agent Directive)
+When the user asks you to route a board, autoroute, or visualize routing:
+* **DO NOT ask the user to run scripts manually.** Proactively execute the routing command yourself using your command/bash tool.
+* **Live In-Browser Visualization:** If the user asks to *"watch it"*, *"see it live"*, or *"visualize routing"*, execute:
+  ```bash
+  python scripts/run_fastroute.py <board.kicad_pcb> --live
+  ```
+  *(Launches local server and automatically opens `http://127.0.0.1:7878` in their default browser in real time).*
+* **Standard Background Routing:** If the user asks to *"route the board"* or *"autoroute"*, execute:
+  ```bash
+  python scripts/run_fastroute.py <board.kicad_pcb> -o <board.kicad_pcb>
+  ```
+* **Immediate Verification:** Follow up with `kicad-cli pcb drc` to verify zero violations.
+
 ### CLI Invocation Examples
 ```bash
 # General format
