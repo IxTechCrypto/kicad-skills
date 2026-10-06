@@ -57,7 +57,18 @@ Our tooling and workflows are deeply inspired by the pioneering MCP implementati
 
 ---
 
-### 7. Standards & Manufacturing Organizations
+### 7. fastroute (Fast Open-Source Rust PCB Autorouter)
+* **Author / Project:** Barış Akın ([@barisakin](https://x.com/barisakin) / [parisxmas](https://github.com/parisxmas))
+* **Repository / Site:** [parisxmas/fastroute](https://github.com/parisxmas/fastroute) / [fastroute.baltavista.com](https://fastroute.baltavista.com/)
+* **Contributions:** 
+  * Rebuilt Freerouting as a high-performance, parallel Rust autorouter (4–5× faster, 0 Java Virtual Machine overhead).
+  * Direct support for length matching / serpentines, differential pair gap coupling, and KiCad `.kicad_dru` custom design rules.
+  * Pioneered the real-time in-browser live routing visualizer (`fastroute --live`) streaming live trace creation, rip-up, and airwire resolution directly to an interactive web canvas.
+  * Integrated into our Level 2 automated routing engine via `scripts/run_fastroute.py`.
+
+---
+
+### 8. Standards & Manufacturing Organizations
 * **IPC (Association Connecting Electronics Industries):**
   * **IPC-2152**: Standard for Determining Current-Carrying Capacity in Printed Board Design (basis for `scripts/trace_calc.py`).
   * **IPC-2221**: Generic Standard on Printed Board Design.
@@ -67,5 +78,5 @@ Our tooling and workflows are deeply inspired by the pioneering MCP implementati
 
 ---
 
-### 8. Community Inspiration
+### 9. Community Inspiration
 * Thanks to the active electronics design and AI engineering community on **X (Twitter)** whose experiments and prompts on autonomous KiCad project generation sparked the creation and open-sourcing of this repository.

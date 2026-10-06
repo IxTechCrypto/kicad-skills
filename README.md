@@ -60,6 +60,7 @@ flowchart TD
 * **`tools/pcb_solver/generate_footprint.py`**: Parametric IPC-7351B footprint generator for custom SMD IC packages (QFN, DFN, SOIC, TSSOP, SOT) with automatic **thermal pad solder paste gridding** ($2\times 2$ / $3\times 3$ apertures).
 * **`tools/pcb_solver/pcb_solver.py`**: Discrete PCB constraint optimizer powered by Google OR-Tools CP-SAT and KiCad 10 Python IPC bridge. Enforces `NoOverlap2D` bounding boxes and mechanical keepouts.
 * **`tools/pcb_solver/astar_router.py`**: Algorithmic 8-directional $A^*$ prototype router with 90° corner penalties (reference implementation).
+* **`scripts/run_fastroute.py`**: Automated headless bridge for **fastroute** (Rust Specctra DSN/SES engine). Runs 4–5× faster than Freerouting with 0 JVM overhead, supports differential pair coupling, serpentine length matching, and launches real-time in-browser routing visualization (`--live`).
 * **`scripts/render_3d.py`**: Automated high-resolution orthographic top, bottom, and isometric 3D board raytracer.
 * **`scripts/run_quality_gates.py`**: Zero-tolerance ERC and DRC runner that refills copper zones, checks schematic-to-layout parity, and parses JSON reports.
 * **`scripts/search_jlcpcb.py`**: Fast local CLI search engine for querying 630,000+ components in the JLCPCB/LCSC catalog.
@@ -172,6 +173,7 @@ See [**ATTRIBUTION.md**](ATTRIBUTION.md) for full citations.
 * **[PCB Runner](https://www.pcbrunner.com/a-complete-guide-to-pcb-routing-design-rules-and-best-practices-for-success/#Ground_and_Power_Planes):** Formed the foundational signal integrity and PCB routing engineering rules.
 * **[Altium Academy / Phil Salmony (Phil's Lab)](https://youtu.be/D0X76Kbf8fQ):** Reconciled $3H$ dielectric height crosstalk rule, via antipad clearance void keepouts, and low-inductance decoupling geometry.
 * **[PCBWorld / PCBWorld-Bench (LG AI Research & Seoul National University)](https://arxiv.org/abs/2607.05915):** Benchmark methodology and empirical proof that deterministic routers + per-step DRC feedback outscale raw LLM geometry generation.
+* **[fastroute / Barış Akın](https://fastroute.baltavista.com/):** High-performance Rust PCB autorouter (`parisxmas/fastroute`) providing 4–5× speedups over Java Freerouting, native differential pairs, length matching, and real-time live browser routing visualization.
 * **[DingoOz/TraceMaker](https://github.com/DingoOz/TraceMaker):** Native C++20/CUDA placement-aware autorouting architecture and lossless KiCad 9/10 integration.
 * **[mixelpixx/KiCAD-MCP-Server](https://github.com/mixelpixx/KiCAD-MCP-Server):** Local SQLite FTS5 JLCPCB catalog search architecture.
 * **[BoardRepo](https://boardrepo.com/):** Web-based hardware repository and MCP platform for open-source reference design retrieval.

@@ -179,13 +179,24 @@ When synthesizing or optimizing PCB trace geometry, select the appropriate routi
 | **Power Stage Switching Loops ($V_{\text{SW}}, C_{\text{IN}}, C_{\text{OUT}}$)** | **Deterministic `pcbnew` Python Scripting** | Strict minimum loop area ($L = \mu \cdot l$), polygon pours, and thermal via stitching. |
 | **RF / Antenna Feeds & Controlled Impedance** | **Direct Point-to-Point Coplanar Waveguide** | Strict 0 vias, exact dielectric width, flanking ground via fencing. |
 | **High-Speed Differential (USB, TMDS, RMII)** | **KiCad PNS Interactive Router / Length Tuner** | Controlled impedance, continuous ground return plane, tight length matching ($\Delta L \le 0.5\,\text{mm}$). |
-| **Digital Fanout & Dense Buses (GPIO, I2C, SPI)** | **Graph-Based A* Solver (`astar_router.py`) or FreeRouting (DSN/SES)** | Automated collision-free 45° track generation with rip-up & reroute capability. |
+| **Digital Fanout & Dense Buses (GPIO, I2C, SPI)** | **fastroute (Rust DSN/SES Engine) or FreeRouting** | Native parallel autorouter (4–5× faster, 0 JVM), diff pairs, length matching, and live browser visualizer. |
 | **Post-Route Refinement & Shoving** | **KiCad Built-in Push-and-Shove (PNS)** | Real-time topological walkaround and obstacle shoving. |
 
-### C. Automated A* Router Solver CLI
-For automated single-trace or bus routing with 45° chamfers:
+### C. Automated A* Router Solver CLI (Prototype)
+For experimental single-trace or simple bus routing on empty grids:
 ```bash
 python tools/pcb_solver/astar_router.py --start <x1> <y1> --end <x2> <y2> --board-size 72 30 --width 0.25 --layer F.Cu --net <net_id>
 ```
-Outputs ready-to-inject KiCad 10 `(segment ...)` S-expressions.
+
+### D. fastroute & Real-Time Browser Routing Visualizer
+For dense buses, differential pairs, and full-board autorouting with real-time in-browser visualization:
+```bash
+# Automated headless routing with live web visualization
+python scripts/run_fastroute.py <board.kicad_pcb> -o <routed.kicad_pcb> --live
+
+# Or run standalone fastroute binary directly
+fastroute -de board.dsn -do board.ses --live
+```
+* **Live In-Browser Visualizer:** Streams interactive routing canvas on `http://127.0.0.1:7878`. Tracks appear in green, ripped up traces fade out in red, and unrouted airwires dissolve in real time.
+* **Length Matching & Diff Pairs:** Supports `--tune=tune.txt` for serpentine matching and `--pairs=pairs.txt` for coupled differential pairs without JVM memory bloat.
 

@@ -78,6 +78,17 @@ def check_environment():
     else:
         print("  [i] FreeRouting:   Java runtime not detected")
 
+    # 5. Check fastroute (Rust Specctra DSN/SES Engine)
+    try:
+        from scripts.run_fastroute import find_fastroute_bin
+        fastroute_bin = find_fastroute_bin()
+        if fastroute_bin:
+            print(f"  [✓] fastroute:     Found ({fastroute_bin} - Native Rust, live web visualizer)")
+        else:
+            print("  [i] fastroute:     Not installed (Download from parisxmas/fastroute or install KiCad plugin)")
+    except Exception:
+        pass
+
     print("=" * 60)
 
 

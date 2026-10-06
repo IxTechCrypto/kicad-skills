@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.1.0] — 2026-10-06
+
+### ⚡ fastroute (Rust Engine) & Live Browser Routing Visualization
+
+Adopts **fastroute** (v0.1.10+, by Barış Akın / `parisxmas/fastroute`) as the primary Level 2 automated router across all skills and verification tools.
+
+#### Added
+- **`scripts/run_fastroute.py`**:
+  - One-command headless pipeline from `.kicad_pcb` $\to$ Specctra DSN $\to$ `fastroute` $\to$ SES $\to$ `.kicad_pcb`.
+  - Native Rust execution (4–5× faster than Freerouting, 0 JVM dependency, parallel passes).
+  - Live in-browser visualization flag (`--live`): opens interactive web canvas at `http://127.0.0.1:7878` showing traces routing in green, ripped up tracks fading in red, and airwires dissolving in real time.
+  - Automatic differential pair gap coupling and serpentine length matching for memory/clock buses.
+- **Evaluation Harness (`evals/run_pcbworld.py`)**:
+  - Added native support for `--router fastroute`.
+- **Toolchain Diagnostics (`install.py`)**:
+  - Added auto-detection and health check for `fastroute.exe`.
+- **KiCad 10 Action Plugin**:
+  - Bundled plugin installed to `%APPDATA%\kicad\10.0\scripting\plugins\fastroute`.
+
+#### Changed
+- **`skills/kicad-core` & `skills/pcb-routing-best-practices`**:
+  - Upgraded Level 2 of the Routing Decision Ladder from Java Freerouting to `fastroute`.
+  - Documented live in-browser visualization for design inspection and screencasting.
+
+---
+
 ## [2.0.0] — 2026-09-19
 
 ### 🚀 Major Architectural Restructure & Domain Packs

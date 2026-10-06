@@ -37,6 +37,8 @@ _autosave-*
 *.png
 *.pdf
 *.svg
+*.mp4
+plots/
 erc_report.json
 drc_report.json
 evals_report.json

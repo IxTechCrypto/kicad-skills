@@ -115,16 +115,31 @@ class PCBWorldEvaluator:
             }
         }
 
+    def route_board(self, pcb_path: Path, router_name: str) -> Path:
+        if router_name == "fastroute":
+            try:
+                sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+                from scripts.run_fastroute import run_fastroute_pipeline
+                routed_path = pcb_path.with_suffix(".fastroute.kicad_pcb")
+                res = run_fastroute_pipeline(pcb_path, output_path=routed_path)
+                if res.get("success") and routed_path.exists():
+                    return routed_path
+            except Exception as e:
+                print(f"    [WARN] fastroute invocation error: {e}", file=sys.stderr)
+        return pcb_path
+
     def evaluate_board(self, pcb_path: Path, router_name: str = "native") -> BoardEvalResult:
         start_time = time.time()
-        report_path = pcb_path.with_suffix(".drc_report.json")
-        drc_data = self.run_kicad_drc(pcb_path, report_path)
+        eval_target = self.route_board(pcb_path, router_name) if router_name != "native" else pcb_path
+
+        report_path = eval_target.with_suffix(".drc_report.json")
+        drc_data = self.run_kicad_drc(eval_target, report_path)
 
         violations = drc_data.get("violations", [])
         unconnected = drc_data.get("unconnected", [])
 
         # Parse geometric metrics from board file
-        content = pcb_path.read_text(encoding="utf-8", errors="replace") if pcb_path.exists() else ""
+        content = eval_target.read_text(encoding="utf-8", errors="replace") if eval_target.exists() else ""
         total_vias = content.count("(via ")
         total_segments = content.count("(segment ")
         
