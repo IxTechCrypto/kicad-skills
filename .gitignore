@@ -47,3 +47,4 @@ evals/*.json
 .DS_Store
 Thumbs.db
 desktop.ini
+.upstream_state.json
