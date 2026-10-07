@@ -6,8 +6,9 @@ Provides an autonomous, zero-friction routing interface for AI agents and humans
 1. Auto-discovers the best available solver (TraceMaker -> FreeRouting -> Python A*).
 2. Performs pre-flight escape feasibility checks for dense packages.
 3. Ingests native .kicad_dru design rules.
-4. Executes the routing engine.
-5. Runs zero-tolerance headless DRC validation with automatic rollback on violations.
+4. Supports --reroute for clean track strip and re-solve (TraceMaker 0.8.0).
+5. Executes the routing engine.
+6. Runs zero-tolerance headless DRC validation with automatic rollback on violations.
 """
 
 import argparse
@@ -28,7 +29,8 @@ from tools.pcb_solver.tracemaker_bridge import (
     find_tracemaker_binary,
     is_tracemaker_available,
     run_tracemaker_route,
-    run_tracemaker_escape
+    run_tracemaker_escape,
+    run_tracemaker_inspect
 )
 
 
@@ -157,6 +159,7 @@ def route_board(
     engine: str = "auto",
     time_budget_s: int = 120,
     dru_path: Optional[Path] = None,
+    reroute: bool = False,
     escape_check: bool = False,
     run_drc: bool = True
 ) -> Dict:
@@ -188,7 +191,8 @@ def route_board(
             pcb_path=pcb_path,
             output_path=out_file,
             time_budget_s=time_budget_s,
-            dru_path=dru_path
+            dru_path=dru_path,
+            reroute=reroute
         )
         if tm_res.get("success"):
             response["engine_used"] = "tracemaker"
@@ -237,6 +241,7 @@ def main():
                         help="Routing engine selection (default: auto)")
     parser.add_argument("--time", type=int, default=120, help="Time budget in seconds")
     parser.add_argument("--dru", help="Path to .kicad_dru design rules")
+    parser.add_argument("--reroute", action="store_true", help="Clear existing tracks and route cleanly from scratch")
     parser.add_argument("--escape-check", action="store_true", help="Run escape feasibility check first")
     parser.add_argument("--no-drc", action="store_true", help="Skip post-route DRC check")
     parser.add_argument("--json", action="store_true", help="Print structured JSON output")
@@ -249,6 +254,7 @@ def main():
         engine=args.engine,
         time_budget_s=args.time,
         dru_path=Path(args.dru) if args.dru else None,
+        reroute=args.reroute,
         escape_check=args.escape_check,
         run_drc=not args.no_drc
     )

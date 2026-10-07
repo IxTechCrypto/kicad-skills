@@ -82,6 +82,7 @@ def run_tracemaker_route(
     time_budget_s: Optional[int] = 120,
     work_budget: Optional[int] = None,
     dru_path: Optional[Path] = None,
+    reroute: bool = False,
     component_rules: bool = True,
     live_view: bool = False,
     custom_bin: Optional[str] = None,
@@ -113,6 +114,8 @@ def run_tracemaker_route(
             cmd.extend(["--work", str(work_budget)])
         if dru_path and Path(dru_path).exists():
             cmd.extend(["--dru", str(Path(dru_path).resolve())])
+        if reroute:
+            cmd.append("--reroute")
         if component_rules:
             cmd.extend(["--component-rules", "on"])
         if live_view:
@@ -130,6 +133,8 @@ def run_tracemaker_route(
             cmd.extend(["--time", str(time_budget_s)])
         elif work_budget:
             cmd.extend(["--work", str(work_budget)])
+        if reroute:
+            cmd.append("--reroute")
 
     start_time = time.time()
     try:
@@ -198,13 +203,50 @@ def run_tracemaker_escape(pcb_path: Path, custom_bin: Optional[str] = None) -> D
         return {"success": False, "engine": "tracemaker", "error": str(e)}
 
 
+def run_tracemaker_inspect(pcb_path: Path, custom_bin: Optional[str] = None) -> Dict:
+    """
+    Runs board inspection and summary diagnostic via TraceMaker.
+    """
+    pcb_path = Path(pcb_path).resolve()
+    if not pcb_path.exists():
+        return {"success": False, "error": f"Board file not found: {pcb_path}"}
+
+    bin_path, mode = find_tracemaker_binary(custom_bin)
+    if mode == "none":
+        return {
+            "success": False,
+            "engine": "tracemaker",
+            "available": False,
+            "error": "TraceMaker executable not found for inspect."
+        }
+
+    cmd = [bin_path, "inspect", str(pcb_path)] if mode == "native" else [
+        "docker", "run", "--rm", "-v", f"{pcb_path.parent}:/work", "-w", "/work",
+        bin_path, "inspect", pcb_path.name
+    ]
+
+    try:
+        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+        return {
+            "success": proc.returncode == 0,
+            "engine": "tracemaker",
+            "mode": mode,
+            "stdout": proc.stdout,
+            "stderr": proc.stderr,
+            "returncode": proc.returncode
+        }
+    except Exception as e:
+        return {"success": False, "engine": "tracemaker", "error": str(e)}
+
+
 def main():
     parser = argparse.ArgumentParser(description="TraceMaker Bridge CLI")
     parser.add_argument("pcb", help="Path to .kicad_pcb")
     parser.add_argument("-o", "--output", help="Output .kicad_pcb path")
-    parser.add_argument("--mode", choices=["route", "escape", "check"], default="route", help="Operation mode")
+    parser.add_argument("--mode", choices=["route", "escape", "inspect", "check"], default="route", help="Operation mode")
     parser.add_argument("--time", type=int, default=120, help="Routing time budget in seconds")
     parser.add_argument("--dru", help="Path to .kicad_dru custom rules")
+    parser.add_argument("--reroute", action="store_true", help="Clear existing tracks and route cleanly from scratch")
     parser.add_argument("--bin", help="Custom path to tracemaker executable")
 
     args = parser.parse_args()
@@ -224,12 +266,18 @@ def main():
         print(json.dumps(res, indent=2))
         sys.exit(0 if res.get("success") else 1)
 
+    if args.mode == "inspect":
+        res = run_tracemaker_inspect(Path(args.pcb), custom_bin=args.bin)
+        print(json.dumps(res, indent=2))
+        sys.exit(0 if res.get("success") else 1)
+
     if args.mode == "route":
         res = run_tracemaker_route(
             Path(args.pcb),
             output_path=Path(args.output) if args.output else None,
             time_budget_s=args.time,
             dru_path=Path(args.dru) if args.dru else None,
+            reroute=args.reroute,
             custom_bin=args.bin
         )
         print(json.dumps(res, indent=2))
