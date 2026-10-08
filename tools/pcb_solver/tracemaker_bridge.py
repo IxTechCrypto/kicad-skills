@@ -4,6 +4,7 @@ tracemaker_bridge.py — High-Performance Python Bridge for TraceMaker Router
 
 Wraps DingoOz/TraceMaker (C++20/CUDA native KiCad placement & routing engine)
 with automatic binary discovery, Docker fallback, and standardized JSON output.
+Supports TraceMaker 0.8.0+ features: --reroute, --no-tracks-on, --layer-cost, and inspect.
 """
 
 import argparse
@@ -40,6 +41,8 @@ def find_tracemaker_binary(custom_path: Optional[str] = None) -> Tuple[Optional[
         # Local workspace build artifacts
         repo_root / "build" / "release" / "src" / "app" / "tracemaker",
         repo_root / "build" / "release" / "src" / "app" / "tracemaker.exe",
+        repo_root / "build" / "macos-metal" / "src" / "app" / "tracemaker",
+        repo_root / "build" / "macos-cpu" / "src" / "app" / "tracemaker",
         repo_root / "tools" / "bin" / "tracemaker",
         repo_root / "tools" / "bin" / "tracemaker.exe",
         # macOS / Linux paths
@@ -83,12 +86,14 @@ def run_tracemaker_route(
     work_budget: Optional[int] = None,
     dru_path: Optional[Path] = None,
     reroute: bool = False,
+    no_tracks_on: Optional[List[str]] = None,
+    layer_cost: Optional[Dict[str, float]] = None,
     component_rules: bool = True,
     live_view: bool = False,
     custom_bin: Optional[str] = None,
 ) -> Dict:
     """
-    Executes TraceMaker route on a .kicad_pcb board.
+    Executes TraceMaker route on a .kicad_pcb board with layer constraints.
     """
     pcb_path = Path(pcb_path).resolve()
     if not pcb_path.exists():
@@ -116,6 +121,12 @@ def run_tracemaker_route(
             cmd.extend(["--dru", str(Path(dru_path).resolve())])
         if reroute:
             cmd.append("--reroute")
+        if no_tracks_on:
+            for lyr in no_tracks_on:
+                cmd.extend(["--no-tracks-on", lyr])
+        if layer_cost:
+            for lyr, cost in layer_cost.items():
+                cmd.extend(["--layer-cost", f"{lyr}:{cost}"])
         if component_rules:
             cmd.extend(["--component-rules", "on"])
         if live_view:
@@ -135,6 +146,12 @@ def run_tracemaker_route(
             cmd.extend(["--work", str(work_budget)])
         if reroute:
             cmd.append("--reroute")
+        if no_tracks_on:
+            for lyr in no_tracks_on:
+                cmd.extend(["--no-tracks-on", lyr])
+        if layer_cost:
+            for lyr, cost in layer_cost.items():
+                cmd.extend(["--layer-cost", f"{lyr}:{cost}"])
 
     start_time = time.time()
     try:
@@ -247,6 +264,8 @@ def main():
     parser.add_argument("--time", type=int, default=120, help="Routing time budget in seconds")
     parser.add_argument("--dru", help="Path to .kicad_dru custom rules")
     parser.add_argument("--reroute", action="store_true", help="Clear existing tracks and route cleanly from scratch")
+    parser.add_argument("--no-tracks-on", action="append", help="Prohibit track routing on specific copper layer (e.g. In1.Cu)")
+    parser.add_argument("--layer-cost", help="Custom layer routing cost penalty (e.g. 'In1.Cu:5.0,In2.Cu:10.0')")
     parser.add_argument("--bin", help="Custom path to tracemaker executable")
 
     args = parser.parse_args()
@@ -272,12 +291,24 @@ def main():
         sys.exit(0 if res.get("success") else 1)
 
     if args.mode == "route":
+        layer_costs = {}
+        if args.layer_cost:
+            for item in args.layer_cost.split(","):
+                if ":" in item:
+                    k, v = item.split(":", 1)
+                    try:
+                        layer_costs[k.strip()] = float(v.strip())
+                    except ValueError:
+                        pass
+
         res = run_tracemaker_route(
             Path(args.pcb),
             output_path=Path(args.output) if args.output else None,
             time_budget_s=args.time,
             dru_path=Path(args.dru) if args.dru else None,
             reroute=args.reroute,
+            no_tracks_on=args.no_tracks_on,
+            layer_cost=layer_costs if layer_costs else None,
             custom_bin=args.bin
         )
         print(json.dumps(res, indent=2))

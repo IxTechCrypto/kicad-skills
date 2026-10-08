@@ -109,20 +109,20 @@ If you have an automated pipeline or another AI system pulling this repository o
 
 ---
 
-### 🍎 Apple Silicon (Mac Mini / M-Series) TraceMaker Acceleration (One-Time Setup)
+### 🍎 Apple Silicon (Mac Mini / M-Series) TraceMaker Metal GPU Acceleration (One-Time Setup)
 
-By default, `kicad-skills` operates out-of-the-box with zero configuration using bundled fallbacks (FreeRouting & Python $A^*$). To unlock **high-speed native CPU routing speeds** on Apple Silicon (M1/M2/M3/M4) using [DingoOz/TraceMaker](https://github.com/DingoOz/TraceMaker), run this **one-time** setup:
+By default, `kicad-skills` operates out-of-the-box with zero configuration using bundled fallbacks (FreeRouting & Python $A^*$). To unlock **high-speed native Apple Metal GPU routing speeds** on Apple Silicon (M1/M2/M3/M4) using [DingoOz/TraceMaker](https://github.com/DingoOz/TraceMaker), run this **one-time** setup:
 
 #### Step 1: Install Homebrew Build Prerequisites
 ```bash
-brew install cmake boost eigen tbb fmt spdlog flatbuffers sqlite3 catch2
+brew install cmake ninja eigen cli11 nlohmann-json catch2 zstd boost fmt spdlog flatbuffers sqlite3
 ```
 
-#### Step 2: Run the Automated Build Script
+#### Step 2: Run the Automated Metal GPU Build Script
 ```bash
 bash scripts/build_tracemaker_mac.sh
 ```
-*This automatically clones TraceMaker, configures the `cpu-only` multi-threaded preset (using oneTBB & Eigen on Apple Silicon cores), compiles the binary, and places it into `tools/bin/tracemaker`.*
+*This automatically clones TraceMaker, configures the `macos-metal` GPU shader preset (using Apple Metal on Apple Silicon GPU cores with oneTBB/Eigen CPU fallback), compiles the binary, and places it into `tools/bin/tracemaker`.*
 
 #### Step 3: Verify the Toolchain Health
 ```bash
@@ -138,6 +138,7 @@ You should see:
 **Nothing!**
 * **Zero extra commands:** You never need to start a background daemon or run Python manually.
 * **Nightly pulls:** Whenever you run `git pull`, your local `tracemaker` installation stays intact and Antigravity will automatically use it for every routing and design prompt.
+* **Ground Plane Protection:** Antigravity will automatically pass `--no-tracks-on In1.Cu` on 4-layer boards to preserve solid return path ground planes.
 
 ---
 

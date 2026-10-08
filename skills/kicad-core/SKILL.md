@@ -69,11 +69,11 @@ Level 1: Power & Heavy Ground Highways (Semi-Automated)
          ↳ Scripted native `pcbnew` Python polygons with 45° chamfers & thermal via arrays.
          ↳ Directly connects heavy buck stages, inductors, and input protection.
 
-Level 2: Dense Digital & Bus Routing (fastroute - Rust Specctra DSN/SES Engine)
-         ↳ Execute fastroute: `python scripts/run_fastroute.py <board.kicad_pcb> [-o routed.kicad_pcb] [--live]`
-         ↳ 4–5× faster than legacy Java Freerouting with zero JVM dependency (native Rust binary).
-         ↳ Native support for length matching / serpentines (`--tune`), differential pairs (`--pairs`), and controlled impedance.
-         ↳ Live in-browser routing visualization: pass `--live` to watch traces route and airwires dissolve in real time.
+Level 2: Dense Digital & Bus Routing (Automated Solver Hub)
+         ↳ Primary: `python scripts/route_pcb.py <board.kicad_pcb> --engine auto` (TraceMaker C++20/CUDA/Metal or FreeRouting fallback)
+         ↳ Dedicated Rust DSN: `python scripts/run_fastroute.py <board.kicad_pcb> --live`
+         ↳ **Ground Plane Protection Directive:** On 4-layer boards (Sig/GND/Pwr/Sig), ALWAYS pass `--no-tracks-on In1.Cu` to strictly prevent signal traces from cutting the unbroken ground reference plane.
+         ↳ **Power Plane Biasing:** Pass `--layer-cost In2.Cu:10.0` to heavily penalize signal routing on dedicated power planes.
 
 Level 3: Escape & Trivial Jumpers (Scripted A* or Native API)
          ↳ Use `tools/pcb_solver/route_and_verify.py` for incremental net routing with immediate DRC delta check.

@@ -6,9 +6,10 @@ Provides an autonomous, zero-friction routing interface for AI agents and humans
 1. Auto-discovers the best available solver (TraceMaker -> FreeRouting -> Python A*).
 2. Performs pre-flight escape feasibility checks for dense packages.
 3. Ingests native .kicad_dru design rules.
-4. Supports --reroute for clean track strip and re-solve (TraceMaker 0.8.0).
-5. Executes the routing engine.
-6. Runs zero-tolerance headless DRC validation with automatic rollback on violations.
+4. Supports --reroute for clean track strip and re-solve.
+5. Enforces layer exclusion (--no-tracks-on) to preserve unbroken ground/power planes.
+6. Executes the routing engine.
+7. Runs zero-tolerance headless DRC validation with automatic rollback on violations.
 """
 
 import argparse
@@ -160,6 +161,8 @@ def route_board(
     time_budget_s: int = 120,
     dru_path: Optional[Path] = None,
     reroute: bool = False,
+    no_tracks_on: Optional[List[str]] = None,
+    layer_cost: Optional[Dict[str, float]] = None,
     escape_check: bool = False,
     run_drc: bool = True
 ) -> Dict:
@@ -192,7 +195,9 @@ def route_board(
             output_path=out_file,
             time_budget_s=time_budget_s,
             dru_path=dru_path,
-            reroute=reroute
+            reroute=reroute,
+            no_tracks_on=no_tracks_on,
+            layer_cost=layer_cost
         )
         if tm_res.get("success"):
             response["engine_used"] = "tracemaker"
@@ -242,11 +247,23 @@ def main():
     parser.add_argument("--time", type=int, default=120, help="Time budget in seconds")
     parser.add_argument("--dru", help="Path to .kicad_dru design rules")
     parser.add_argument("--reroute", action="store_true", help="Clear existing tracks and route cleanly from scratch")
+    parser.add_argument("--no-tracks-on", action="append", help="Prohibit track routing on specific copper layer (e.g. In1.Cu)")
+    parser.add_argument("--layer-cost", help="Custom layer routing cost penalty (e.g. 'In1.Cu:5.0,In2.Cu:10.0')")
     parser.add_argument("--escape-check", action="store_true", help="Run escape feasibility check first")
     parser.add_argument("--no-drc", action="store_true", help="Skip post-route DRC check")
     parser.add_argument("--json", action="store_true", help="Print structured JSON output")
 
     args = parser.parse_args()
+
+    layer_costs = {}
+    if args.layer_cost:
+        for item in args.layer_cost.split(","):
+            if ":" in item:
+                k, v = item.split(":", 1)
+                try:
+                    layer_costs[k.strip()] = float(v.strip())
+                except ValueError:
+                    pass
 
     result = route_board(
         pcb_path=Path(args.pcb),
@@ -255,6 +272,8 @@ def main():
         time_budget_s=args.time,
         dru_path=Path(args.dru) if args.dru else None,
         reroute=args.reroute,
+        no_tracks_on=args.no_tracks_on,
+        layer_cost=layer_costs if layer_costs else None,
         escape_check=args.escape_check,
         run_drc=not args.no_drc
     )

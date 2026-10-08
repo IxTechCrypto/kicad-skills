@@ -61,3 +61,11 @@ When routing Ethernet controllers (e.g. LAN8720A, RTL8211, IP101G):
    * Place serpentine accordion tuning loops immediately adjacent to the corner or obstacle that introduced the length mismatch.
 3. **Layer Transitions:**
    * Minimize via transitions on differential pairs. When transitioning layers, place a pair of ground stitching vias adjacent to the signal via pair.
+
+---
+
+## 5. Automated Layer Protection Directives for Autorouters
+
+When running automated routing (`scripts/route_pcb.py` or TraceMaker) on multi-layer high-speed boards:
+* **Strict Ground Plane Protection:** On standard 4-layer stackups (L1: Signal, L2: GND, L3: Power, L4: Signal), **ALWAYS pass `--no-tracks-on In1.Cu`**. This mathematically prevents the router from cutting slots or tracks through the primary high-speed return path plane.
+* **Power Plane Prioritization:** Pass `--layer-cost In2.Cu:10.0` to bias signals to the outer layers and keep the internal power distribution plane solid and low-impedance.
