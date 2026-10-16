@@ -113,3 +113,22 @@ python tools/pcb_solver/verify_layout_physics.py <board.kicad_pcb>
 python scripts/render_3d.py <board.kicad_pcb>
 ```
 * **Gate Requirement:** 0 DRC violations, 0 ERC errors, 0 unrouted nets, 0 schematic parity discrepancies.
+
+---
+
+## 5. Model Orchestration Protocol (Gemini 4 Argon & Spatial Intelligence)
+
+PCB design is fundamentally an exercise in multi-dimensional spatial geometry, electromagnetics, and physical clearance verification. In AI-assisted workflows (e.g. Google Antigravity, Claude Code), model selection dictates routing success:
+
+### A. Lead Spatial Architect: Gemini 4 Argon
+Configure or escalate to **Gemini 4 Argon** for all high-complexity spatial and physical phases:
+* **Visual-Spatial Physical Reasoning:** Leverage Argon's native physical-world and spatial reasoning capabilities to resolve floorplanning constraints, component orientations, and return path loops.
+* **1M-Token Whole-Board Ingestion:** Ingest complete complex multi-layer `.kicad_pcb` layouts, full schematic netlists, and massive DRC error dumps in a single context window without loss of topological relationships.
+* **Closed-Loop 3D Visual Auditing:** Feed rendered orthographic raytraces (`render_top.png`, `render_bottom.png`, `render_iso.png` from `scripts/render_3d.py`) directly into Argon's multimodal vision engine to audit:
+  - Connector outward egress vectors (preventing inverted bottom-layer ports).
+  - Mounting hole hardware keepout zones ($M3 \ge 6.0\,\text{mm}$ diameter clear annular envelope).
+  - Dense passive spacing, solder fillet room, and silkscreen pad collisions.
+* **Routing Strategy Synthesis:** Pre-calculating layer cost weights and netclass constraints before launching autonomous solvers.
+
+### B. Fast Execution Driver: Gemini 3.8 Flash
+* Handles rapid terminal loops, running solver scripts (`scripts/run_fastroute.py`, `scripts/route_pcb.py`), parsing CLI JSON outputs, and executing local file edits.

@@ -192,7 +192,9 @@ python tools/pcb_solver/verify_layout_physics.py <board.kicad_pcb>
 
 ## 6. Multi-Role Independent Engineering Review Protocol
 
-Once the primary schematic and PCB layout are generated, the design MUST undergo a mandatory three-stage independent review before being marked as complete or released for fabrication:
+Once the primary schematic and PCB layout are generated, the design MUST undergo a mandatory three-stage independent review before being marked as complete or released for fabrication.
+
+> **🤖 Antigravity Multi-Model Execution Directive:** Subagents dispatched to execute the 3-Stage Review MUST be configured with **Gemini 4 Argon** (`model: "argon"` or tier escalation). Argon's native visual-spatial physical reasoning and 1M-token context eliminate self-bias, evaluate full multi-layer board files without truncation, and visually inspect 3D raytrace renders (`render_top.png`, `render_bottom.png`) with frontier spatial acuity.
 
 ### Stage 1: Independent Master Electrical Engineer Review
 1. **Power Supply & Switching Converter Topology:**

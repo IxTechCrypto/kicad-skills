@@ -109,6 +109,18 @@ If you have an automated pipeline or another AI system pulling this repository o
 
 ---
 
+### 🧠 Model Orchestration: Gemini 4 Argon for Spatial PCB Intelligence
+
+PCB layout is an applied physical geometry problem with strict electromagnetic constraints. In **Google Antigravity**, configure your agent workflow to leverage **Gemini 4 Argon**:
+
+| Workflow Phase | Recommended Model | Primary Role |
+| :--- | :--- | :--- |
+| **Spatial Architecture & Floorplanning** | **Gemini 4 Argon** | Ingests full multi-layer `.kicad_pcb` files (1M-token context). Solves component placement zones, ground return continuity, and thermal copper geometry. |
+| **Closed-Loop 3D Visual Auditing** | **Gemini 4 Argon** | Multimodal physical reasoning over `render_3d.py` raytraces (`render_top.png`, `render_bottom.png`). Catches backward connectors, mounting hole annular violations, and silkscreen collisions. |
+| **Routing Solver Execution** | **Gemini 3.8 Flash** | Fast CLI driver executing `fastroute`, TraceMaker, and headless KiCad DRC loops. |
+
+---
+
 ### 🍎 Apple Silicon (Mac Mini / M-Series) TraceMaker Metal GPU Acceleration (One-Time Setup)
 
 By default, `kicad-skills` operates out-of-the-box with zero configuration using bundled fallbacks (FreeRouting & Python $A^*$). To unlock **high-speed native Apple Metal GPU routing speeds** on Apple Silicon (M1/M2/M3/M4) using [DingoOz/TraceMaker](https://github.com/DingoOz/TraceMaker), run this **one-time** setup:
