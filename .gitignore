@@ -50,3 +50,5 @@ evals/*.json
 Thumbs.db
 desktop.ini
 .upstream_state.json
+*.log
+testbench_report.md
